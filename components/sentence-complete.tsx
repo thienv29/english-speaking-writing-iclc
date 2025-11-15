@@ -109,35 +109,23 @@ export default function SentenceComplete({ lessonId, onBack }: SentenceCompleteP
   }
 
   return (
-    <div className="w-4xl mx-auto">
+    <div className="space-y-2 flex flex-col h-full justify-center w-4xl">
       <Button
         onClick={onBack}
         variant="outline"
-        className="mb-6 rounded-full h-10"
+        className="rounded-full h-10 w-fit"
       >
         ← Back
       </Button>
 
-      <div className="mb-6 text-center">
-        <p className="text-muted-foreground text-lg font-semibold">
-          Exercise {currentExerciseIndex + 1} of {exercises.length}
-        </p>
-        <div className="w-full bg-muted rounded-full h-3 mt-2">
-          <div
-            className="bg-gradient-to-r from-accent to-orange-500 h-3 rounded-full transition-all duration-300"
-            style={{ width: `${((currentExerciseIndex + 1) / exercises.length) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      <Card className="border-4 border-accent shadow-2xl">
+      <Card className="bg-gradient-to-br from-accent/10 to-accent/5 overflow-y-auto max-h-[70vh] shadow-lg">
        
 
         <CardContent className="p-8 space-y-6">
-          <div className="bg-yellow-200 p-8 rounded-2xl border-4 border-accent">
+          <div className="bg-yellow-200 p-8 rounded-2xl">
             <p className="text-sm text-slate-700 font-bold mb-4">COMPLETE THE SENTENCE:</p>
             <p className="text-2xl font-bold text-slate-900 leading-relaxed mb-4">
-              {currentExercise.partial.split('___').map((part, index) => (
+              {currentExercise.partial.split('___').map((part: string, index: number) => (
                 <span key={index}>
                   {part}
                   {index < currentExercise.partial.split('___').length - 1 && (
@@ -158,7 +146,7 @@ export default function SentenceComplete({ lessonId, onBack }: SentenceCompleteP
               value={currentAnswer}
               onChange={(e) => handleAnswerChange(e.target.value)}
               placeholder="Type the missing word..."
-              className="h-14 text-lg rounded-2xl border-3 border-accent p-4 text-slate-900 placeholder:text-slate-500"
+              className="h-14 text-lg rounded-2xl p-4 text-slate-900 placeholder:text-slate-500"
             />
           </div>
 
@@ -179,7 +167,7 @@ export default function SentenceComplete({ lessonId, onBack }: SentenceCompleteP
           )}
 
           {currentScore && (
-            <div className="bg-green-50 border-4 border-green-400 rounded-2xl p-6">
+            <div className="bg-green-50 rounded-2xl p-6">
               <div className="text-center mb-4">
                 <p className="text-3xl font-bold text-green-700">
                   Score: {currentScore.score}/10
@@ -194,26 +182,41 @@ export default function SentenceComplete({ lessonId, onBack }: SentenceCompleteP
             </div>
           )}
 
-          <div className="flex gap-4 justify-center pt-4">
-            <Button
-              onClick={handlePrevious}
-              disabled={currentExerciseIndex === 0}
-              className="px-8 h-14 rounded-full font-bold text-lg"
-              variant="outline"
-            >
-              ← Previous
-            </Button>
-
-            <Button
-              onClick={handleNext}
-              disabled={!currentScore}
-              className="px-8 h-14 rounded-full font-bold text-lg bg-accent hover:bg-accent/90 disabled:opacity-50"
-            >
-              {isLastExercise ? 'Finish! 🎉' : 'Next →'}
-            </Button>
-          </div>
         </CardContent>
       </Card>
+
+      {/* Navigation */}
+      <div className="flex gap-4 justify-between">
+        <Button
+          onClick={handlePrevious}
+          disabled={currentExerciseIndex === 0}
+          className="px-6 py-3 rounded-full font-bold disabled:opacity-50"
+        >
+          ← Previous
+        </Button>
+        <div className="text-center">
+          <p className="text-lg font-bold text-slate-700">
+            Exercise {currentExerciseIndex + 1} of {exercises.length}
+          </p>
+          <div className="flex gap-2 mt-2 justify-center">
+            {Array.from({ length: exercises.length }, (_, idx) => (
+              <div
+                key={idx}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  idx === currentExerciseIndex ? 'bg-accent w-8' : 'bg-slate-300'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+        <Button
+          onClick={handleNext}
+          disabled={!currentScore}
+          className="px-6 py-3 rounded-full font-bold disabled:opacity-50"
+        >
+          {isLastExercise ? 'Finish! 🎉' : 'Next →'}
+        </Button>
+      </div>
     </div>
   )
 }

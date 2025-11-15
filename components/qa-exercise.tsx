@@ -126,10 +126,10 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
         ← Back
       </Button>
 
-      <Card className="border-4 border-primary shadow-2xl bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh]">
+      <Card className="shadow-lg bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh]">
 
         <CardContent className="p-8 space-y-6">
-          <div className="bg-blue-100 p-8 rounded-2xl border-4 border-primary">
+          <div className="bg-blue-100 p-8 rounded-2xl">
             <p className="text-sm text-slate-700 font-bold mb-3">QUESTION:</p>
             <h2 className="text-3xl font-bold text-slate-900 mb-6 leading-relaxed">
               {currentQuestion.question}
@@ -151,7 +151,7 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
           </Button>
 
           {showHint && (
-            <div className="bg-amber-100 p-6 rounded-2xl border-3 border-amber-600">
+            <div className="bg-amber-100 p-6 rounded-2xl">
               <p className="text-sm text-slate-700 font-bold mb-2">HINT:</p>
               <p className="text-lg font-semibold text-slate-900">{currentQuestion.hint}</p>
             </div>
@@ -165,7 +165,7 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
               value={currentAnswer}
               onChange={(e) => handleAnswerChange(e.target.value)}
               placeholder="Write your answer here..."
-              className="min-h-24 text-lg rounded-2xl border-2 border-primary p-4 text-slate-900 placeholder:text-slate-500"
+              className="min-h-24 text-lg rounded-2xl p-4 text-slate-900 placeholder:text-slate-500"
             />
             <p className="text-xs text-slate-600 mt-2">
               💬 Try to write a complete sentence!
@@ -189,7 +189,7 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
           )}
 
           {currentScore && (
-            <div className="bg-green-50 border-4 border-green-400 rounded-2xl p-6">
+            <div className="bg-green-50 rounded-2xl p-6">
               <div className="text-center mb-4">
                 <p className="text-3xl font-bold text-green-700">
                   Score: {currentScore.score}/10

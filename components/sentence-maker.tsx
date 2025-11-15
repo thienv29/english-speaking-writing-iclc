@@ -111,37 +111,25 @@ export default function SentenceMaker({ lessonId, onBack }: SentenceMakerProps) 
   }
 
   return (
-    <div className="w-4xl mx-auto">
+    <div className="space-y-2 flex flex-col h-full justify-center w-4xl">
       <Button
         onClick={onBack}
         variant="outline"
-        className="mb-6 rounded-full h-10"
+        className="rounded-full h-10 w-fit"
       >
         ← Back
       </Button>
 
-      <div className="mb-6 text-center">
-        <p className="text-muted-foreground text-lg font-semibold">
-          Word {currentWordIndex + 1} of {words.length}
-        </p>
-        <div className="w-full bg-muted rounded-full h-3 mt-2">
-          <div
-            className="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-300"
-            style={{ width: `${((currentWordIndex + 1) / words.length) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      <Card className="border-4 border-secondary shadow-2xl">
+      <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 overflow-y-auto max-h-[70vh] shadow-lg">
         <CardContent className="p-8 space-y-6">
           <div className="text-center">
             <div className="text-8xl mb-4">{currentWord.emoji}</div>
-            <div className="bg-green-200 p-6 rounded-2xl border-4 border-secondary inline-block">
+            <div className="bg-green-200 p-6 rounded-2xl inline-block">
               <p className="text-4xl font-bold text-slate-900">{currentWord.word.toUpperCase()}</p>
             </div>
           </div>
 
-          <div className="bg-green-100 p-6 rounded-2xl border-2 border-secondary">
+          <div className="bg-green-100 p-6 rounded-2xl">
             <p className="text-lg font-bold text-slate-900 text-center">
               Create a sentence using the word: <span className="text-green-700 font-bold">{currentWord.word}</span>
             </p>
@@ -156,7 +144,7 @@ export default function SentenceMaker({ lessonId, onBack }: SentenceMakerProps) 
           </Button>
 
           {showExample && (
-            <div className="bg-amber-100 p-6 rounded-2xl border-3 border-amber-600">
+            <div className="bg-amber-100 p-6 rounded-2xl">
               <p className="text-sm text-slate-700 font-bold mb-2">EXAMPLE:</p>
               <p className="text-lg font-semibold text-slate-900 italic">"{currentWord.example}"</p>
             </div>
@@ -170,7 +158,7 @@ export default function SentenceMaker({ lessonId, onBack }: SentenceMakerProps) 
               value={currentSentence}
               onChange={(e) => handleSentenceChange(e.target.value)}
               placeholder={`Write a sentence with "${currentWord.word}"...`}
-              className="min-h-24 text-lg rounded-2xl border-2 border-secondary p-4 text-slate-900 placeholder:text-slate-500"
+              className="min-h-24 text-lg rounded-2xl p-4 text-slate-900 placeholder:text-slate-500"
             />
             <p className="text-xs text-slate-600 mt-2">
               📝 Be creative and make a meaningful sentence!
@@ -194,7 +182,7 @@ export default function SentenceMaker({ lessonId, onBack }: SentenceMakerProps) 
           )}
 
           {currentScore && (
-            <div className="bg-green-50 border-4 border-green-400 rounded-2xl p-6">
+            <div className="bg-green-50 rounded-2xl p-6">
               <div className="text-center mb-4">
                 <p className="text-3xl font-bold text-green-700">
                   Score: {currentScore.score}/10
@@ -209,26 +197,41 @@ export default function SentenceMaker({ lessonId, onBack }: SentenceMakerProps) 
             </div>
           )}
 
-          <div className="flex gap-4 justify-center pt-4">
-            <Button
-              onClick={handlePrevious}
-              disabled={currentWordIndex === 0}
-              className="px-8 h-14 rounded-full font-bold text-lg"
-              variant="outline"
-            >
-              ← Previous
-            </Button>
-
-            <Button
-              onClick={handleNext}
-              disabled={!currentScore}
-              className="px-8 h-14 rounded-full font-bold text-lg bg-secondary hover:bg-secondary/90 disabled:opacity-50"
-            >
-              {isLastWord ? 'Finish! 🎉' : 'Next →'}
-            </Button>
-          </div>
         </CardContent>
       </Card>
+
+      {/* Navigation */}
+      <div className="flex gap-4 justify-between">
+        <Button
+          onClick={handlePrevious}
+          disabled={currentWordIndex === 0}
+          className="px-6 py-3 rounded-full font-bold disabled:opacity-50"
+        >
+          ← Previous
+        </Button>
+        <div className="text-center">
+          <p className="text-lg font-bold text-slate-700">
+            Word {currentWordIndex + 1} of {words.length}
+          </p>
+          <div className="flex gap-2 mt-2 justify-center">
+            {Array.from({ length: words.length }, (_, idx) => (
+              <div
+                key={idx}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  idx === currentWordIndex ? 'bg-secondary w-8' : 'bg-slate-300'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+        <Button
+          onClick={handleNext}
+          disabled={!currentScore}
+          className="px-6 py-3 rounded-full font-bold disabled:opacity-50"
+        >
+          {isLastWord ? 'Finish! 🎉' : 'Next →'}
+        </Button>
+      </div>
     </div>
   )
 }
