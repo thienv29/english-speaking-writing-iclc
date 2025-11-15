@@ -49,18 +49,18 @@ export default function WritingTab({ lessonId }: WritingTabProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-        {/* Q&A Exercise */}
+        {/* Q&A Exercise - Blue theme */}
         <Card
           onClick={() => setExerciseType('qa')}
-          className="cursor-pointer border border-secondary bg-gradient-to-br from-green-100 to-green-50 hover:shadow-lg transition-all"
+          className="cursor-pointer border border-primary bg-gradient-to-br from-blue-100 to-blue-50 hover:shadow-lg transition-all"
         >
           <CardHeader className="text-center">
             <div className="text-4xl mb-2">💬</div>
-            <CardTitle className="text-lg text-secondary">Answer Questions</CardTitle>
+            <CardTitle className="text-lg text-primary">Answer Questions</CardTitle>
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-xs text-slate-700 font-semibold mb-2">Read the question and write your answer in complete sentences</p>
-            <Button className="w-full py-1 text-sm bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-full">
+            <Button className="w-full py-1 text-sm bg-primary hover:bg-primary/80 text-primary-foreground rounded-full">
               Start
             </Button>
           </CardContent>
@@ -69,15 +69,15 @@ export default function WritingTab({ lessonId }: WritingTabProps) {
         {/* Sentence Maker */}
         <Card
           onClick={() => setExerciseType('sentence')}
-          className="cursor-pointer border border-primary bg-gradient-to-br from-blue-100 to-blue-50 hover:shadow-lg transition-all"
+          className="cursor-pointer border border-secondary bg-gradient-to-br from-green-100 to-green-50 hover:shadow-lg transition-all"
         >
           <CardHeader className="text-center">
             <div className="text-4xl mb-2">🔤</div>
-            <CardTitle className="text-lg text-primary">Make a Sentence</CardTitle>
+            <CardTitle className="text-lg text-secondary">Make a Sentence</CardTitle>
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-xs text-slate-700 font-semibold mb-2">Create sentences using the given vocabulary words</p>
-            <Button className="w-full py-1 text-sm bg-primary hover:bg-primary/80 text-primary-foreground rounded-full">
+            <Button className="w-full py-1 text-sm bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-full">
               Start
             </Button>
           </CardContent>

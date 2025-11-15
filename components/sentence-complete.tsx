@@ -211,8 +211,7 @@ export default function SentenceComplete({ lessonId, onBack }: SentenceCompleteP
         </div>
         <Button
           onClick={handleNext}
-          disabled={!currentScore}
-          className="px-6 py-3 rounded-full font-bold disabled:opacity-50"
+          className="px-6 py-3 rounded-full font-bold"
         >
           {isLastExercise ? 'Finish! 🎉' : 'Next →'}
         </Button>

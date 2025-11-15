@@ -232,8 +232,7 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
         </div>
         <Button
           onClick={handleNext}
-          disabled={!currentScore}
-          className="px-6 py-3 rounded-full font-bold disabled:opacity-50"
+          className="px-6 py-3 rounded-full font-bold"
         >
           {isLastQuestion ? 'Finish! 🎉' : 'Next →'}
         </Button>
