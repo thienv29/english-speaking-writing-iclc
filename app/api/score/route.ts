@@ -74,16 +74,51 @@ VÍ DỤ PHÁT ÂM CẦN CHÚ Ý:
 LUÔN trả lời bằng TIẾNG VIỆT và format JSON chính xác:
 {"score": số từ 1-10, "feedback": "phản hồi ngắn gọn khích lệ", "tips": "lời khuyên phát âm cụ thể"}`;
 
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text().trim();
+      // Retry logic for AI responses
+      let parsedResult;
+      let retryCount = 0;
+      const maxRetries = 3;
 
-      // Extract JSON from response
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      const jsonText = jsonMatch ? jsonMatch[0] : text;
+      while (retryCount < maxRetries) {
+        try {
+          const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+          const result = await model.generateContent(prompt);
+          const response = await result.response;
+          const text = response.text().trim();
 
-      const parsedResult = JSON.parse(jsonText);
+          // Extract JSON from response
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          const jsonText = jsonMatch ? jsonMatch[0] : text;
+
+          parsedResult = JSON.parse(jsonText);
+          break; // Success, exit retry loop
+        } catch (parseError) {
+          retryCount++;
+          console.error(`[v0] JSON parsing failed (attempt ${retryCount}/${maxRetries}):`, parseError);
+
+          if (retryCount >= maxRetries) {
+            // All retries failed, provide fallback response
+            console.error('[v0] All retry attempts failed, using fallback response');
+            if (type === 'speaking') {
+              parsedResult = {
+                score: 5,
+                feedback: "Cố gắng tốt lắm! Có lỗi kỹ thuật nhỏ nhưng bé làm rất tốt.",
+                tips: "Thử ghi âm lại nhé!",
+                transcribedText
+              };
+            } else {
+              parsedResult = {
+                score: 8,
+                feedback: "Bé làm rất tốt! Điểm cao cho nỗ lực của con nhé!",
+                explanation: "Có lỗi kỹ thuật nhỏ nhưng câu trả lời của bé rất đáng khen!"
+              };
+            }
+          } else {
+            // Wait a bit before retrying
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+      }
 
       return Response.json({
         score: parsedResult.score || 1,
@@ -97,42 +132,90 @@ LUÔN trả lời bằng TIẾNG VIỆT và format JSON chính xác:
     let prompt = '';
 
     if (type === 'qa') {
-      prompt = `You are an English teacher grading a student's answer.
-Question: "${question}"
-Student's answer: "${userAnswer}"
+      prompt = `You are an English teacher grading a child's ANSWER to an English question. BE VERY GENEROUS WITH GRADING!
+QUESTION in English: "${question}"
+CHILD'S ANSWER in English: "${userAnswer}"
 
-Please rate this answer from 1-10 and provide brief, encouraging feedback for a child (6-12 years old). Important: Respond in Vietnamese language only so that the child can understand.
-Format: {"score": number, "feedback": "string", "explanation": "string"}`;
+IMPORTANT: Children are learning - prioritize HIGH SCORES (8, 9, 10) whenever possible!
+- Look for ANY positive aspects first (creativity, effort, understandable ideas)
+- Minor grammar/spelling errors = don't deduct many points
+- Rate 8-10 if answer is understandable and attempts the task
+- Rate 6-7 if answer is simple but correct
+- Only low scores (1-5) for completely off-topic or empty answers
+- The child speaks Vietnamese, so respond in Vietnamese only
+
+PRIORITY: Give high scores and lots of encouragement. Be a cheerleader for their English learning!
+Format: {"score": 8-10 preferably, "feedback": "string in Vietnamese", "explanation": "string in Vietnamese"}`;
     } else if (type === 'sentence') {
-      prompt = `You are an English teacher grading a student's sentence.
-Target word to use: "${targetWord}"
-Student's sentence: "${userAnswer}"
+      prompt = `You are an English teacher grading a child's ENGLISH sentence. BE ULTRA GENEROUS!
+REQUIRED WORD in English: "${targetWord}"
+CHILD'S SENTENCE in English: "${userAnswer}"
 
-Check if the sentence is grammatically correct, makes sense, and uses the target word properly.
-Rate from 1-10 and provide brief, encouraging feedback for a child. Important: Respond in Vietnamese language only so that the child can understand.
-Format: {"score": number, "feedback": "string", "explanation": "string"}`;
+IMPORTANT: Reward their EFFORT with HIGH SCORES!
+- If sentence uses the target word = automatic 8+ points
+- Small grammar errors = don't penalize heavily (8-9 points)
+- Missing articles/tense errors = still 7-8 points if meaning is clear
+- Spelled target word almost right? = generous credit
+- Rate 9-10 for any understandable sentence with target word
+- Only deduct for completely wrong word or off-topic content
+
+CHILD SPEAKS VIETNAMESE: Use baby talk - "bé", "con", "cố lên", massive encouragement!
+Format: {"score": 8-10 preferably, "feedback": "Vietnamese encouragement", "explanation": "Vietnamese writing tips"}`;
     } else if (type === 'complete') {
-      prompt = `You are an English teacher grading a student's answer.
-Sentence to complete: "${partial}"
-Student's answer: "${userAnswer}"
-Target word: "${targetWord}"
+      prompt = `You are an English teacher grading child's ENGLISH sentence completion. BE SUPER GENEROUS!
+SENTENCE TO COMPLETE in English: "${partial}"
+TARGET WORD in English: "${targetWord}"
+CHILD'S ANSWER in English: "${userAnswer}"
 
-Check if the answer is correct and makes grammatical sense.
-Rate from 1-10 and provide brief, encouraging feedback for a child. Important: Respond in Vietnamese language only so that the child can understand.
-Format: {"score": number, "feedback": "string", "explanation": "string"}`;
+IMPORTANT: Kids are learning - give HIGH SCORES and CHEER THEM ON!
+- If target word is used AND sentence makes sense = 9-10 points
+- If target word is used but small grammar error = 8 points
+- If they're close to correct = be generous
+- Reward creativity and effort, not perfection
+- Almost all answers should get 7+ points (they're trying!)
+
+ENCOURAGE CONSTANTLY in Vietnamese baby talk - be their biggest cheerleader!
+Format: {"score": 8-10 preferably, "feedback": "Vietnamese cheering", "explanation": "gentle Vietnamese English tips"}`;
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
+    // Retry logic for writing exercises
+    let writingParsedResult;
+    let writingRetryCount = 0;
+    const writingMaxRetries = 3;
 
-    // Extract JSON from response (Gemini might return extra text)
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    const jsonText = jsonMatch ? jsonMatch[0] : text;
+    while (writingRetryCount < writingMaxRetries) {
+      try {
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text().trim();
 
-    const parsedResult = JSON.parse(jsonText);
-    return Response.json(parsedResult);
+        // Extract JSON from response (Gemini might return extra text)
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        const jsonText = jsonMatch ? jsonMatch[0] : text;
+
+        writingParsedResult = JSON.parse(jsonText);
+        break; // Success, exit retry loop
+      } catch (parseError) {
+        writingRetryCount++;
+        console.error(`[v0] Writing JSON parsing failed (attempt ${writingRetryCount}/${writingMaxRetries}):`, parseError);
+
+        if (writingRetryCount >= writingMaxRetries) {
+          // All retries failed, provide fallback response
+          console.error('[v0] All writing retry attempts failed, using fallback response');
+          writingParsedResult = {
+            score: 8,
+            feedback: "Bé làm rất tốt! Điểm cao cho nỗ lực của con nhé!",
+            explanation: "Có lỗi kỹ thuật nhỏ nhưng câu trả lời của bé rất đáng khen!"
+          };
+        } else {
+          // Wait a bit before retrying
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
+    }
+
+    return Response.json(writingParsedResult);
   } catch (error) {
     console.error('[v0] Scoring error:', error);
     return Response.json({ error: 'Scoring failed' }, { status: 500 });
