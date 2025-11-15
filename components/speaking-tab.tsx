@@ -132,13 +132,24 @@ const vocabularyData: Record<string, any[]> = {
       } else if (response.status === 400) {
         // Bad file format
         return 'The audio file format is not supported. Please try recording again.'
+      } else if (response.status === 404) {
+        // Service not found
+        return 'Speech recognition service is not available. Please check if the service is running.'
+      } else if (response.status === 500) {
+        // Server error
+        console.error('[v0] Server error (500) from transcription API. This might be a server-side issue.')
+        return 'The speech recognition service encountered an error. Please try again in a moment, or check if the service is running correctly.'
+      } else if (response.status >= 500) {
+        // General server errors
+        console.error('[v0] Server error from transcription API:', response.status)
+        return 'The speech recognition service is having technical difficulties. Please try again later.'
       } else {
-        // Other errors
-        console.error('[v0] Transcription API error status:', response.status)
-        return 'There was an error processing your audio. Please try again later.'
+        // Other client errors
+        console.error('[v0] Unexpected error from transcription API:', response.status)
+        return 'Unable to process your audio recording. Please try again.'
       }
     } catch (error) {
-      console.error('[v0] Transcription API error:', error)
+      console.error('[v0] Network or connection error:', error)
       return 'Could not connect to the speech recognition service. Please check your internet connection and try again.'
     }
   }
@@ -177,14 +188,28 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
 
         // Convert to WAV and send to transcription API after recording is complete
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+
+        if (audioBlob.size === 0) {
+          console.error('[v0] Recorded audio blob is empty')
+          setTranscribedText('Recording was too short or empty. Please try speaking for at least 1 second.')
+          setTranscribedText('')
+          return
+        }
+
         const audioUrl = URL.createObjectURL(audioBlob)
         setRecordingUrl(audioUrl)
 
-        const wavBlob = await convertToWav(audioBlob)
-        const transcript = await transcribeAudio(wavBlob)
-        setTranscribedText(transcript)
+        try {
+          const wavBlob = await convertToWav(audioBlob)
+          const transcript = await transcribeAudio(wavBlob)
+          setTranscribedText(transcript)
 
-        await scoreRecording(currentItem.word, transcript)
+          await scoreRecording(currentItem.word, transcript)
+        } catch (audioError) {
+          console.error('[v0] Audio processing error:', audioError)
+          setTranscribedText('Unable to process the recorded audio. This may be due to browser compatibility or recording issues. Please try again.')
+          setTranscribedText('')
+        }
       }
 
       mediaRecorder.start()
@@ -340,24 +365,42 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
                 )}
 
                 {score && (
-                  <div className="bg-blue-50 border-2 border-blue-400 rounded-lg p-4 mt-4">
-                    <div className="text-center mb-3">
-                      <p className="text-2xl font-bold text-blue-700">
-                        Score: {score.score}/10
-                      </p>
+                  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-200">
+                      <div className="text-center mb-6">
+                        <div className="mb-4">
+                          <img
+                            src="/izzy/24 1014 - Mascot Guidlines emotions-01.png"
+                            alt="Izzy mascot celebrating"
+                            className="w-20 h-20 mx-auto mb-3"
+                          />
+                        </div>
+                        <p className="text-4xl font-bold text-blue-600 mb-2">
+                          {score.score}/10
+                        </p>
+                        <p className="text-lg font-medium text-slate-600">Your Pronunciation Score!</p>
+                      </div>
+                      <div className="mb-6">
+                        <p className="text-sm text-slate-600 mb-1 text-center">You said:</p>
+                        <p className="text-lg font-mono bg-gray-50 rounded px-3 py-2 text-center mb-4 border">
+                          "{score.transcribedText || '[No speech detected]'}"
+                        </p>
+                        <p className="text-lg font-semibold text-slate-900 text-center mb-3">
+                          {score.feedback}
+                        </p>
+                        <p className="text-slate-700 text-center">
+                          {score.tips}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <Button
+                          onClick={() => setScore(null)}
+                          className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6"
+                        >
+                          Continue
+                        </Button>
+                      </div>
                     </div>
-                    <div className="mb-3">
-                      <p className="text-sm text-slate-600 mb-1">You said:</p>
-                      <p className="text-lg font-mono bg-white rounded px-3 py-2 text-center">
-                        "{score.transcribedText || '[No speech detected]'}"
-                      </p>
-                    </div>
-                    <p className="text-lg font-semibold text-slate-900 text-center mb-2">
-                      {score.feedback}
-                    </p>
-                    <p className="text-slate-700 text-center">
-                      {score.tips}
-                    </p>
                   </div>
                 )}
 
