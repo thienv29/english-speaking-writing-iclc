@@ -144,7 +144,7 @@ const vocabularyData: Record<string, any[]> = {
   }
 
 export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
-  const [currentWordIndex, setCurrentWordIndex] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [isRecording, setIsRecording] = useState(false)
   const [recordingUrl, setRecordingUrl] = useState<string | null>(null)
   const [recordingSaved, setRecordingSaved] = useState(false)
@@ -156,7 +156,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
   const speechRecognitionRef = useRef<any>(null)
 
   const vocabulary = vocabularyData[lessonId] || vocabularyData.animals
-  const currentWord = vocabulary[currentWordIndex]
+  const currentItem = vocabulary[currentIndex]
 
   const startRecording = async () => {
     try {
@@ -184,7 +184,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
         const transcript = await transcribeAudio(wavBlob)
         setTranscribedText(transcript)
 
-        await scoreRecording(currentWord.word, transcript)
+        await scoreRecording(currentItem.word, transcript)
       }
 
       mediaRecorder.start()
@@ -236,8 +236,8 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
   }
 
   const handleNext = () => {
-    if (currentWordIndex < vocabulary.length - 1) {
-      setCurrentWordIndex(currentWordIndex + 1)
+    if (currentIndex < vocabulary.length - 1) {
+      setCurrentIndex(currentIndex + 1)
       setRecordingUrl(null)
       setRecordingSaved(false)
       setScore(null)
@@ -246,8 +246,8 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
   }
 
   const handlePrevious = () => {
-    if (currentWordIndex > 0) {
-      setCurrentWordIndex(currentWordIndex - 1)
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1)
       setRecordingUrl(null)
       setRecordingSaved(false)
       setScore(null)
@@ -262,57 +262,49 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
   }
 
   return (
-    <div className="space-y-2 flex flex-col h-full justify-center w-4xl">
+    <div className="space-y-4 flex flex-col h-full justify-center w-4xl">
       <Card className="bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh] shadow-lg">
 
         <CardContent className="p-8">
-          {/* Beautiful Header Section */}
+          {/* Practice Header */}
           <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 mb-6 border border-blue-100">
 
-            {/* 3-Column Layout */}
-            <div className="grid grid-cols-3 gap-8 items-center">
-              {/* LEFT: Emoji + Word with beautiful styling */}
+            <div className="grid grid-cols-2 gap-8 items-center">
+              {/* LEFT: Emoji + Word */}
               <div className="text-center space-y-3">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center text-4xl shadow-lg mx-auto">
-                  {currentWord.emoji}
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center text-5xl shadow-lg mx-auto">
+                  {currentItem.emoji}
                 </div>
                 <div className="space-y-1">
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
-                    {currentWord.word}
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+                    {currentItem.word}
                   </h1>
                   <div className="h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"></div>
                 </div>
+                <Button
+                  onClick={() => playAudio(currentItem.word)}
+                  variant="outline"
+                  size="lg"
+                  className="mt-4 px-6 py-3 rounded-full font-semibold border-2 border-blue-300 text-blue-700 bg-white hover:bg-blue-500 hover:border-blue-500 hover:text-white shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  🔊 Listen to Word
+                </Button>
               </div>
 
-              {/* CENTER: Beautiful Instructions */}
+              {/* RIGHT: Clear Instructions */}
               <div className="text-center">
-                <div className="bg-white/60 backdrop-blur-sm p-5 rounded-xl shadow-sm border border-white/40">
-                  <p className="text-lg font-medium text-slate-800 leading-relaxed">
-                    <span className="text-blue-600">"</span>
-                    <span className="font-semibold">{currentWord.example}</span>
-                    <span className="text-blue-600">"</span>
+                <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-white/50">
+                  <h3 className="text-2xl font-bold text-slate-800 mb-3">Practice Speaking Words</h3>
+                  <p className="text-lg text-slate-700 leading-relaxed mb-4">
+                    Say just the word clearly:
+                  </p>
+                  <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-4">
+                    <p className="text-3xl font-bold text-blue-700">{currentItem.word}</p>
+                  </div>
+                  <p className="text-slate-600">
+                    Record yourself saying this single word
                   </p>
                 </div>
-              </div>
-
-              {/* RIGHT: Premium Tag Buttons */}
-              <div className="flex flex-col gap-3 items-end">
-                <Button
-                  onClick={() => playAudio(currentWord.word)}
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full px-5 py-2.5 text-sm font-semibold border-2 border-blue-300 text-blue-700 bg-white hover:bg-blue-500 hover:border-blue-500 hover:text-white shadow-sm hover:shadow-md transition-all duration-200 ease-in-out"
-                >
-                  🎵 Word
-                </Button>
-                <Button
-                  onClick={() => playAudio(currentWord.example)}
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full px-5 py-2.5 text-sm font-semibold border-2 border-purple-300 text-purple-700 bg-white hover:bg-purple-500 hover:border-purple-500 hover:text-white shadow-sm hover:shadow-md transition-all duration-200 ease-in-out"
-                >
-                  🎵 Sentence
-                </Button>
               </div>
             </div>
           </div>
@@ -398,21 +390,21 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
       <div className="flex gap-4 justify-between">
         <Button
           onClick={handlePrevious}
-          disabled={currentWordIndex === 0}
+          disabled={currentIndex === 0}
           className="px-6 py-3 rounded-full font-bold disabled:opacity-50"
         >
           ← Previous
         </Button>
         <div className="text-center">
           <p className="text-lg font-bold text-slate-700">
-            Word {currentWordIndex + 1} of {vocabulary.length}
+            Word {currentIndex + 1} of {vocabulary.length}
           </p>
           <div className="flex gap-2 mt-2 justify-center">
             {Array.from({ length: vocabulary.length }, (_, idx) => (
               <div
                 key={idx}
                 className={`w-3 h-3 rounded-full transition-all ${
-                  idx === currentWordIndex ? 'bg-primary w-8' : 'bg-slate-300'
+                  idx === currentIndex ? 'bg-primary w-8' : 'bg-slate-300'
                 }`}
               />
             ))}
@@ -422,7 +414,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
           onClick={handleNext}
           className="px-6 py-3 rounded-full font-bold"
         >
-          {currentWordIndex === vocabulary.length - 1 ? 'Finish! 🎉' : 'Next →'}
+          {currentIndex === vocabulary.length - 1 ? 'Finish! 🎉' : 'Next →'}
         </Button>
       </div>
     </div>
