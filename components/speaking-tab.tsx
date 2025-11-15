@@ -263,7 +263,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
 
   return (
     <div className="space-y-2 flex flex-col h-full justify-center">
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary overflow-y-auto max-h-[70vh]">
+      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh]">
         <CardHeader className="text-center pb-2">
           <div className="text-4xl mb-2">{currentWord.emoji}</div>
           <CardTitle className="text-2xl text-primary mb-1">{currentWord.word}</CardTitle>
@@ -287,31 +287,23 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
           </div>
 
           {/* Recording Section */}
-          <div className="bg-white rounded-xl p-6 border-2 border-primary">
+          <div className="bg-white rounded-xl p-6">
             <p className="text-center text-slate-900 font-bold mb-4">📢 Click to record your pronunciation:</p>
             <div className="flex gap-4 justify-center mb-4">
               <Button
-                onClick={startRecording}
-                disabled={isRecording}
+                onClick={isRecording ? stopRecording : startRecording}
                 className={`px-8 py-6 text-lg rounded-full font-bold transition-all ${
                   isRecording
-                    ? 'bg-red-500 hover:bg-red-600 text-white'
+                    ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
                     : 'bg-primary hover:bg-primary/80 text-primary-foreground'
                 }`}
               >
-                🎙️ {isRecording ? 'Recording...' : 'Start Record'}
-              </Button>
-              <Button
-                onClick={stopRecording}
-                disabled={!isRecording}
-                className="px-8 py-6 text-lg rounded-full font-bold bg-slate-400 hover:bg-slate-500 text-white disabled:opacity-50"
-              >
-                ⏹️ Stop Record
+                {isRecording ? '⏹️ Recording... Stop' : '🎙️ Start Record'}
               </Button>
             </div>
 
             {recordingSaved && recordingUrl && (
-              <div className="bg-green-50 border-2 border-green-400 rounded-lg p-4 mt-4">
+              <div className="bg-green-50 rounded-lg p-4 mt-4">
                 <p className="text-center text-green-700 font-bold mb-3">✅ Your pronunciation recorded!</p>
                 <div className="flex justify-center mb-4">
                   <audio controls src={recordingUrl} className="w-full max-w-sm" />
@@ -332,7 +324,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
                     </div>
                     <div className="mb-3">
                       <p className="text-sm text-slate-600 mb-1">You said:</p>
-                      <p className="text-lg font-mono bg-white rounded px-3 py-2 border text-center">
+                      <p className="text-lg font-mono bg-white rounded px-3 py-2 text-center">
                         "{score.transcribedText || '[No speech detected]'}"
                       </p>
                     </div>
