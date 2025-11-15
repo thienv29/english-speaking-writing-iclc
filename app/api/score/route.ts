@@ -8,6 +8,21 @@ export async function POST(request: Request) {
 
     // Handle speaking type - use AI to assess pronunciation accuracy
     if (type === 'speaking') {
+      // PERFECT MATCH: If transcript is exactly the target word or very close, give 10/10 immediately
+      const normalizedTranscript = normalizeText(transcribedText || '');
+      const normalizedTarget = normalizeText(targetWord);
+
+      if (normalizedTranscript === normalizedTarget ||
+          normalizedTranscript.includes(normalizedTarget) ||
+          levenshteinDistance(normalizedTranscript, normalizedTarget) <= 1) {
+        return Response.json({
+          score: 10,
+          feedback: `Tuyệt vời! Bé phát âm từ '${targetWord}' rất chính xác! 🎉`,
+          tips: "Bé làm rất tốt! Tiếp tục phát huy nhé!",
+          transcribedText
+        });
+      }
+
       // Handle error cases first
       if (transcribedText && transcribedText.toLowerCase().includes('could not connect')) {
         return Response.json({
@@ -44,21 +59,22 @@ Số lần thử: ${attempts || 1}
 
 HƯỚNG DẪN QUAN TRỌNG:
 - Trích âm giọng nói có thể không chính xác 100% do speech recognition → hãy linh hoạt, tập trung vào ý chính
-- Nếu trích âm gần đúng với từ "${targetWord}" (dù sai lỗi nhỏ), hãy CHẤM ĐIỂM CAO và khích lệ → trẻ em cần được động viên!
-- Chỉ bảo thử lại khi sai hoàn toàn hoặc không phát âm được gì
-- Ưu tiên KHÍCH LỆ thay vì chỉ trích lỗi nhỏ
+- Nếu trích âm CHỨA "${targetWord}" oder rất gần giống (ví dụ "but" thay vì "bird") → TỰ ĐỘNG CHO ĐIỂM CAO 9-10!
+- Phát âm gần đúng = cũng cho điểm cao, trẻ em cần được khích lệ!
+- Chỉ thấp điểm khi sai hoàn toàn hoặc không liên quan gì đến từ cần phát âm
 
-${isLenientMode ? `CHẾ ĐỘ NỚI LỎNG: Trẻ đã thử ${attempts} lần! Hãy rất khoan dung và cho điểm cao ngay cả với phát âm gần đúng. Thưởng cho nỗ lực!` : ''}
+${isLenientMode ? `CHẾ ĐỘ NỚI LỎNG SIÊU HÀNG: Trẻ đã thử ${attempts} lần! Tuyệt đối KHÔNG được thấp điểm nếu phát âm gần đúng. Thưởng cho mọi nỗ lực!` : ''}
 
-TIÊU CHÍ CHẤM ĐIỂM ${isLenientMode ? 'SIÊU HÀNG HẢI' : 'HÀNG HẢI'} (1-10):
-${isLenientMode ? `10-8 = Tuyệt vời! Bé đã cố gắng nhiều, cho điểm cao!
-6-7 = Tốt lắm, tiếp tục phát huy!
-4-5 = Khá rồi, bé giỏi lắm!` : `10 = Hoàn hảo hoặc rất gần giống native speaker
-9-8 = Rất tốt, chỉ có lỗi nhỏ không đáng kể (cho điểm cao!)
-7-6 = Tốt, phát âm được nhưng có 1-2 lỗi nhỏ (vẫn khích lệ mạnh!)
-5-4 = Trung bình, có nhiều lỗi nhưng vẫn hiểu được ý
-3-2 = Phát âm khó hiểu, cần cải thiện nhiều
-1 = Gần như không phát âm được hoặc sai hoàn toàn`}
+TIÊU CHÍ CHẤM ĐIỂM ${isLenientMode ? 'VIÊN MĂN SIÊU HÀNG HẢI' : 'SIÊU HÀNG HẢI'} (1-10):
+${isLenientMode ? `10 = Phát âm đúng từ! Bé tuyệt vời!
+9 = Rất gần đúng! Bé giỏi lắm! (đừng bao giờ dưới 9)
+8 = Gần đúng, rất tốt rồi!
+7 = Tốt, tiếp tục cố gắng! (tối thiểu 7 điểm)` : `10 = Phát âm hoàn hảo với từ chính hoặc gần giống 100%
+9 = Phát âm đúng từ mục tiêu hoặc rất gần giống (rất tốt!)
+8 = Phát âm gần đúng, có thể chỉ khác lỗi nhỏ
+7 = Phát âm được, nghĩa rõ ràng (tốt!)
+6 = Trung bình, cần cải thiện thêm
+`}
 
 PHẢN HỒI PHÙ HỢP VỚI TRẺ EM:
 - Luôn khích lệ: "Rất tốt!", "Tiếp tục phát huy nhé!", "Cố gắng hơn chút nữa!"
