@@ -4,7 +4,7 @@ const genAI = new GoogleGenerativeAI(process.env.AI_GATEWAY_API_KEY!);
 
 export async function POST(request: Request) {
   try {
-    const { type, userAnswer, question, targetWord, partial, transcribedText } = await request.json();
+    const { type, userAnswer, question, targetWord, partial, transcribedText, attempts } = await request.json();
 
     // Handle speaking type - use AI to assess pronunciation accuracy
     if (type === 'speaking') {
@@ -35,10 +35,12 @@ export async function POST(request: Request) {
       }
 
       // Use AI to assess pronunciation accuracy
+      const isLenientMode = attempts >= 4; // Nới lỏng sau 4 lần thử
       const prompt = `Bạn là giáo viên phát âm tiếng Anh đang đánh giá bài ghi âm của trẻ em. Hãy nhẹ nhàng và khích lệ.
 
 Từ cần phát âm: "${targetWord}"
 Trích âm giọng nói của trẻ: "${transcribedText || 'Không phát hiện giọng nói'}"
+Số lần thử: ${attempts || 1}
 
 HƯỚNG DẪN QUAN TRỌNG:
 - Trích âm giọng nói có thể không chính xác 100% do speech recognition → hãy linh hoạt, tập trung vào ý chính
@@ -46,13 +48,17 @@ HƯỚNG DẪN QUAN TRỌNG:
 - Chỉ bảo thử lại khi sai hoàn toàn hoặc không phát âm được gì
 - Ưu tiên KHÍCH LỆ thay vì chỉ trích lỗi nhỏ
 
-TIÊU CHÍ CHẤM ĐIỂM HÀNG HẢI (1-10):
-10 = Hoàn hảo hoặc rất gần giống native speaker
+${isLenientMode ? `CHẾ ĐỘ NỚI LỎNG: Trẻ đã thử ${attempts} lần! Hãy rất khoan dung và cho điểm cao ngay cả với phát âm gần đúng. Thưởng cho nỗ lực!` : ''}
+
+TIÊU CHÍ CHẤM ĐIỂM ${isLenientMode ? 'SIÊU HÀNG HẢI' : 'HÀNG HẢI'} (1-10):
+${isLenientMode ? `10-8 = Tuyệt vời! Bé đã cố gắng nhiều, cho điểm cao!
+6-7 = Tốt lắm, tiếp tục phát huy!
+4-5 = Khá rồi, bé giỏi lắm!` : `10 = Hoàn hảo hoặc rất gần giống native speaker
 9-8 = Rất tốt, chỉ có lỗi nhỏ không đáng kể (cho điểm cao!)
 7-6 = Tốt, phát âm được nhưng có 1-2 lỗi nhỏ (vẫn khích lệ mạnh!)
 5-4 = Trung bình, có nhiều lỗi nhưng vẫn hiểu được ý
 3-2 = Phát âm khó hiểu, cần cải thiện nhiều
-1 = Gần như không phát âm được hoặc sai hoàn toàn
+1 = Gần như không phát âm được hoặc sai hoàn toàn`}
 
 PHẢN HỒI PHÙ HỢP VỚI TRẺ EM:
 - Luôn khích lệ: "Rất tốt!", "Tiếp tục phát huy nhé!", "Cố gắng hơn chút nữa!"

@@ -162,6 +162,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
   const [scoring, setScoring] = useState(false)
   const [score, setScore] = useState<any>(null)
   const [transcribedText, setTranscribedText] = useState<string>('')
+  const [attempts, setAttempts] = useState<Record<number, number>>({}) // Track attempts per word
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const speechRecognitionRef = useRef<any>(null)
@@ -199,12 +200,18 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
         const audioUrl = URL.createObjectURL(audioBlob)
         setRecordingUrl(audioUrl)
 
-        try {
-          const wavBlob = await convertToWav(audioBlob)
-          const transcript = await transcribeAudio(wavBlob)
-          setTranscribedText(transcript)
+          try {
+            const wavBlob = await convertToWav(audioBlob)
+            const transcript = await transcribeAudio(wavBlob)
+            setTranscribedText(transcript)
 
-          await scoreRecording(currentItem.word, transcript)
+            // Increment attempts for this word
+            setAttempts(prev => ({
+              ...prev,
+              [currentIndex]: (prev[currentIndex] || 0) + 1
+            }))
+
+            await scoreRecording(currentItem.word, transcript, attempts[currentIndex] || 0)
         } catch (audioError) {
           console.error('[v0] Audio processing error:', audioError)
           setTranscribedText('Unable to process the recorded audio. This may be due to browser compatibility or recording issues. Please try again.')
@@ -224,7 +231,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
     }
   }
 
-  const scoreRecording = async (word: string, transcribedText: string) => {
+  const scoreRecording = async (word: string, transcribedText: string, attemptCount: number = 0) => {
     setScoring(true)
     try {
       const response = await fetch('/api/score', {
@@ -234,6 +241,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
           type: 'speaking',
           targetWord: word,
           transcribedText: transcribedText,
+          attempts: attemptCount + 1, // Send current attempt count
         }),
       })
 
