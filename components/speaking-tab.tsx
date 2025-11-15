@@ -298,7 +298,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
     <div className="space-y-4 flex flex-col h-full justify-center w-4xl">
       <Card className="bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh] shadow-lg">
 
-        <CardContent className="p-8">
+        <CardContent className="px-8">
           {/* Practice Header */}
           <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 mb-6 border border-blue-100">
 

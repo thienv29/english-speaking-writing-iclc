@@ -9,13 +9,13 @@ interface WritingTabProps {
   lessonId: string
 }
 
-// Writing exercises data
+// Writing exercises data - Dynamic per lesson theme
 const writingData = {
-  animals: {
+  lesson: {
     qa: [
-      { id: 1, question: 'What is your favorite animal?', hint: 'My favorite animal is...' },
-      { id: 2, question: 'Do you have a dog or cat at home?', hint: 'I have a...' },
-      { id: 3, question: 'Where do you see birds?', hint: 'I see birds in the...' },
+      { question: 'What is your favorite animal and why?', hint: 'My favorite animal is a dog because...' },
+      { question: 'Do you have any pets at home?', hint: 'Yes, I have a... / No, I don\'t have any pets.' },
+      { question: 'Would you like to have a pet? What kind?', hint: 'Yes/No, I would like to have a...' },
     ],
     sentence: [
       { word: 'dog', emoji: '🐶', example: 'The dog runs fast.' },
@@ -23,62 +23,11 @@ const writingData = {
       { word: 'bird', emoji: '🐦', example: 'The bird sings beautifully.' },
     ],
     complete: [
-      'The ___ is jumping.',
-      'I see a ___ in the sky.',
-      'My ___ is very friendly.'
+      'My favorite animal is ___',
+      'I see ___ in the park',
+      'The ___ is very friendly'
     ]
   },
-  food: {
-    qa: [
-      { id: 1, question: 'What is your favorite food?', hint: 'My favorite food is...' },
-      { id: 2, question: 'Do you like pizza?', hint: 'Yes, I like... / No, I don\'t...' },
-      { id: 3, question: 'What do you drink for breakfast?', hint: 'I drink...' },
-    ],
-    sentence: [
-      { word: 'apple', emoji: '🍎', example: 'I eat an apple.' },
-      { word: 'pizza', emoji: '🍕', example: 'We love pizza.' },
-      { word: 'milk', emoji: '🥛', example: 'I drink milk every day.' },
-    ],
-    complete: [
-      'I eat an ___ every day.',
-      'My favorite ___ is pizza.',
-      'I drink ___ with my breakfast.'
-    ]
-  },
-  daily: {
-    qa: [
-      { id: 1, question: 'When do you run?', hint: 'I run in the...' },
-      { id: 2, question: 'Do you like to jump and play?', hint: 'Yes, I like to... / No, I don\'t...' },
-      { id: 3, question: 'What time do you sleep?', hint: 'I sleep at...' },
-    ],
-    sentence: [
-      { word: 'run', emoji: '🏃', example: 'I run in the park.' },
-      { word: 'jump', emoji: '⛹️', example: 'Children jump and play.' },
-      { word: 'sleep', emoji: '😴', example: 'I sleep at night.' },
-    ],
-    complete: [
-      'I ___ every morning.',
-      'Children like to ___ and play.',
-      'I ___ at 9 PM.'
-    ]
-  },
-  family: {
-    qa: [
-      { id: 1, question: 'Tell me about your mother', hint: 'My mother is...' },
-      { id: 2, question: 'What does your father do?', hint: 'My father...' },
-      { id: 3, question: 'Do you have a sister or brother?', hint: 'Yes, I have a... / No, I don\'t...' },
-    ],
-    sentence: [
-      { word: 'mother', emoji: '👩', example: 'My mother is kind.' },
-      { word: 'father', emoji: '👨', example: 'My father plays sports.' },
-      { word: 'sister', emoji: '👧', example: 'My sister is smart.' },
-    ],
-    complete: [
-      'My ___ is very nice.',
-      'My ___ plays sports.',
-      'My ___ is 10 years old.'
-    ]
-  }
 }
 
 type ExerciseType = 'qa' | 'sentence' | 'complete'
@@ -132,7 +81,7 @@ export default function WritingTab({ lessonId }: WritingTabProps) {
     return exercises
   }
 
-  const exerciseSequence = createExerciseSequence(writingData[lessonId as keyof typeof writingData] || writingData.animals)
+  const exerciseSequence = createExerciseSequence(writingData[lessonId as keyof typeof writingData] || writingData.lesson)
   const currentExercise = exerciseSequence[currentExerciseIndex]
   const isLastExercise = currentExerciseIndex === exerciseSequence.length - 1
   const currentAnswer = answers[currentExerciseIndex] || ''
@@ -372,7 +321,7 @@ export default function WritingTab({ lessonId }: WritingTabProps) {
   return (
     <div className="space-y-4 flex flex-col h-full justify-center w-4xl">
       <Card className="bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh] shadow-lg">
-        <CardContent className="p-8">
+        <CardContent className="px-8">
           {renderExerciseContent()}
 
           {!currentScore && (
