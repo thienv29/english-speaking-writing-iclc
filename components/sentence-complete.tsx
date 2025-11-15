@@ -109,7 +109,7 @@ export default function SentenceComplete({ lessonId, onBack }: SentenceCompleteP
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-4xl mx-auto">
       <Button
         onClick={onBack}
         variant="outline"

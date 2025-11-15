@@ -78,7 +78,7 @@ export default function VocabularyLesson({ lessonId, onComplete, onBack }: Vocab
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-4xl mx-auto">
       {/* Back Button */}
       <Button
         onClick={onBack}

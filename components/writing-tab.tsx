@@ -52,7 +52,7 @@ export default function WritingTab({ lessonId }: WritingTabProps) {
         {/* Q&A Exercise */}
         <Card
           onClick={() => setExerciseType('qa')}
-          className="cursor-pointer border-2 border-secondary bg-gradient-to-br from-green-100 to-green-50 hover:shadow-lg transition-all"
+          className="cursor-pointer border border-secondary bg-gradient-to-br from-green-100 to-green-50 hover:shadow-lg transition-all"
         >
           <CardHeader className="text-center">
             <div className="text-4xl mb-2">💬</div>
@@ -69,7 +69,7 @@ export default function WritingTab({ lessonId }: WritingTabProps) {
         {/* Sentence Maker */}
         <Card
           onClick={() => setExerciseType('sentence')}
-          className="cursor-pointer border-2 border-primary bg-gradient-to-br from-blue-100 to-blue-50 hover:shadow-lg transition-all"
+          className="cursor-pointer border border-primary bg-gradient-to-br from-blue-100 to-blue-50 hover:shadow-lg transition-all"
         >
           <CardHeader className="text-center">
             <div className="text-4xl mb-2">🔤</div>
@@ -86,7 +86,7 @@ export default function WritingTab({ lessonId }: WritingTabProps) {
         {/* Sentence Completion */}
         <Card
           onClick={() => setExerciseType('complete')}
-          className="cursor-pointer border-2 border-accent bg-gradient-to-br from-yellow-100 to-yellow-50 hover:shadow-lg transition-all"
+          className="cursor-pointer border border-accent bg-gradient-to-br from-yellow-100 to-yellow-50 hover:shadow-lg transition-all"
         >
           <CardHeader className="text-center">
             <div className="text-4xl mb-2">🎯</div>

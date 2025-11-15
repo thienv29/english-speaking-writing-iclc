@@ -111,7 +111,7 @@ export default function SentenceMaker({ lessonId, onBack }: SentenceMakerProps) 
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-4xl mx-auto">
       <Button
         onClick={onBack}
         variant="outline"
