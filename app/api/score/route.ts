@@ -12,41 +12,41 @@ export async function POST(request: Request) {
       const normalizedTarget = (targetWord || '').toLowerCase().trim();
 
       let score = 1;
-      let feedback = "Try again! You can do it!";
-      let tips = "Say the word clearly and slowly.";
+      let feedback = "Thử lại đi! Bé làm được mà!";
+      let tips = "Nói từ rõ ràng và chậm chậm nhé.";
 
       // Perfect match
       if (normalizedTranscribed === normalizedTarget) {
         score = 10;
-        feedback = "Perfect pronunciation! Well done!";
-        tips = "Great job!";
+        feedback = "Giọng phát âm hoàn hảo! Giỏi lắm!";
+        tips = "Làm tốt lắm!";
       }
       // Close phonetic match (Levenshtein ≤1) or contains the word
       else if (levenshteinDistance(normalizedTranscribed, normalizedTarget) <= 1 ||
                normalizedTranscribed.includes(normalizedTarget)) {
         score = 9;
-        feedback = "Very close! Almost perfect!";
-        tips = "You're on the right track!";
+        feedback = "Gần như đúng rồi! Sắp hoàn hảo!";
+        tips = "Bé đang đi đúng hướng!";
       }
       // Phonetic similarity (distance 2 or sound-like)
       else if (levenshteinDistance(normalizedTranscribed, normalizedTarget) <= 2 ||
                hasPhoneticSimilarity(normalizedTranscribed, normalizedTarget)) {
         score = 7;
-        feedback = "Good effort! Keep practicing!";
-        tips = "Pay attention to the exact sounds.";
+        feedback = "Cố gắng tốt! Tiếp tục luyện tập!";
+        tips = "Chú ý nghe đúng âm thanh.";
       }
       // Some letters/digits match
       else if (normalizedTranscribed.length > 0 &&
                hasLetterMatches(normalizedTranscribed, normalizedTarget)) {
         score = 5;
-        feedback = "Nice try! You're getting there.";
-        tips = "Listen carefully to each sound in the word.";
+        feedback = "Thử tốt đấy! Bé đang tiến bộ rồi.";
+        tips = "Lắng nghe cẩn thận từng âm trong từ.";
       }
       // Valid audio but wrong word
       else if (normalizedTranscribed.length > 0) {
         score = 3;
-        feedback = "Keep trying! You can do better.";
-        tips = `You said "${normalizedTranscribed}". Try saying "${normalizedTarget}".`;
+        feedback = "Tiếp tục cố gắng! Bé có thể làm tốt hơn.";
+        tips = `Bé nói "${normalizedTranscribed}". Hãy thử nói "${normalizedTarget}".`;
       }
 
       return Response.json({ score, feedback, tips, transcribedText });
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
 Question: "${question}"
 Student's answer: "${userAnswer}"
 
-Please rate this answer from 1-10 and provide brief, encouraging feedback for a child (6-12 years old).
+Please rate this answer from 1-10 and provide brief, encouraging feedback for a child (6-12 years old). Important: Respond in Vietnamese language only so that the child can understand.
 Format: {"score": number, "feedback": "string", "explanation": "string"}`;
     } else if (type === 'sentence') {
       prompt = `You are an English teacher grading a student's sentence.
@@ -68,7 +68,7 @@ Target word to use: "${targetWord}"
 Student's sentence: "${userAnswer}"
 
 Check if the sentence is grammatically correct, makes sense, and uses the target word properly.
-Rate from 1-10 and provide brief, encouraging feedback for a child.
+Rate from 1-10 and provide brief, encouraging feedback for a child. Important: Respond in Vietnamese language only so that the child can understand.
 Format: {"score": number, "feedback": "string", "explanation": "string"}`;
     } else if (type === 'complete') {
       prompt = `You are an English teacher grading a student's answer.
@@ -77,7 +77,7 @@ Student's answer: "${userAnswer}"
 Target word: "${targetWord}"
 
 Check if the answer is correct and makes grammatical sense.
-Rate from 1-10 and provide brief, encouraging feedback for a child.
+Rate from 1-10 and provide brief, encouraging feedback for a child. Important: Respond in Vietnamese language only so that the child can understand.
 Format: {"score": number, "feedback": "string", "explanation": "string"}`;
     }
 
