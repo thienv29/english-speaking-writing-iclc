@@ -121,48 +121,48 @@ export default function SentenceMaker({ lessonId, onBack }: SentenceMakerProps) 
       </Button>
 
       <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 overflow-y-auto max-h-[70vh] shadow-lg">
-        <CardContent className="p-8 space-y-6">
+        <CardContent className="p-6 space-y-4">
+          {/* Header with emoji and word */}
           <div className="text-center">
-            <div className="text-8xl mb-4">{currentWord.emoji}</div>
-            <div className="bg-green-200 p-6 rounded-2xl inline-block">
-              <p className="text-4xl font-bold text-slate-900">{currentWord.word.toUpperCase()}</p>
-            </div>
+            <div className="text-6xl mb-2">{currentWord.emoji}</div>
+            <h1 className="text-4xl font-bold text-slate-900">{currentWord.word}</h1>
           </div>
 
-          <div className="bg-green-100 p-6 rounded-2xl">
-            <p className="text-lg font-bold text-slate-900 text-center">
-              Create a sentence using the word: <span className="text-green-700 font-bold">{currentWord.word}</span>
+          {/* Instruction */}
+          <div className="bg-secondary/10 p-4 rounded-xl">
+            <p className="text-lg font-semibold text-slate-900 text-center">
+              Create a sentence using: <span className="text-secondary font-bold">"{currentWord.word}"</span>
             </p>
           </div>
 
+          {/* Example toggle */}
           <Button
             onClick={() => setShowExample(!showExample)}
-            variant="outline"
-            className="w-full rounded-full font-bold h-11"
+            variant="ghost"
+            size="sm"
+            className="w-full h-9 text-sm"
           >
-            {showExample ? '✓ Hide Example' : '💡 Show Example'}
+            {showExample ? 'Hide Example' : '💡 Show Example'}
           </Button>
 
           {showExample && (
-            <div className="bg-amber-100 p-6 rounded-2xl">
-              <p className="text-sm text-slate-700 font-bold mb-2">EXAMPLE:</p>
-              <p className="text-lg font-semibold text-slate-900 italic">"{currentWord.example}"</p>
+            <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+              <p className="text-sm text-slate-700 font-medium mb-1">Example:</p>
+              <p className="text-base italic">"{currentWord.example}"</p>
             </div>
           )}
 
-          <div>
-            <label className="text-sm font-bold text-slate-700 block mb-3">
-              YOUR SENTENCE:
+          {/* Answer input */}
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-slate-900 block">
+              Your sentence:
             </label>
             <Textarea
               value={currentSentence}
               onChange={(e) => handleSentenceChange(e.target.value)}
               placeholder={`Write a sentence with "${currentWord.word}"...`}
-              className="min-h-24 text-lg rounded-2xl p-4 text-slate-900 placeholder:text-slate-500"
+              className="min-h-20 text-base rounded-xl border-secondary/50 p-3 text-slate-900 placeholder:text-slate-400 focus:border-secondary"
             />
-            <p className="text-xs text-slate-600 mt-2">
-              📝 Be creative and make a meaningful sentence!
-            </p>
           </div>
 
           {!currentScore && (

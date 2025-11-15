@@ -128,48 +128,50 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
 
       <Card className="shadow-lg bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh]">
 
-        <CardContent className="p-8 space-y-6">
-          <div className="bg-blue-100 p-8 rounded-2xl">
-            <p className="text-sm text-slate-700 font-bold mb-3">QUESTION:</p>
-            <h2 className="text-3xl font-bold text-slate-900 mb-6 leading-relaxed">
+        <CardContent className="p-6 space-y-4">
+          {/* Question section */}
+          <div className="bg-primary/5 p-5 rounded-xl">
+            <p className="text-sm text-slate-700 font-bold mb-2">QUESTION:</p>
+            <h2 className="text-2xl font-bold text-slate-900 mb-4 leading-relaxed">
               {currentQuestion.question}
             </h2>
             <Button
               onClick={handleSpeakQuestion}
-              className="w-full bg-primary hover:bg-primary/90 text-white font-bold h-12 rounded-full text-lg"
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-white font-semibold rounded-full px-6"
             >
-              🔊 Listen to Question
+              🔊 Listen
             </Button>
           </div>
 
+          {/* Hint toggle */}
           <Button
             onClick={() => setShowHint(!showHint)}
-            variant="outline"
-            className="w-full rounded-full font-bold h-11"
+            variant="ghost"
+            size="sm"
+            className="w-full h-9 text-sm"
           >
-            {showHint ? '✓ Hide Hint' : '💡 Show Hint'}
+            {showHint ? 'Hide Hint' : '💡 Show Hint'}
           </Button>
 
           {showHint && (
-            <div className="bg-amber-100 p-6 rounded-2xl">
-              <p className="text-sm text-slate-700 font-bold mb-2">HINT:</p>
-              <p className="text-lg font-semibold text-slate-900">{currentQuestion.hint}</p>
+            <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+              <p className="text-sm text-slate-700 font-medium mb-1">Hint:</p>
+              <p className="text-base italic">"{currentQuestion.hint}"</p>
             </div>
           )}
 
-          <div>
-            <label className="text-sm font-bold text-slate-700 block mb-3">
-              YOUR ANSWER:
+          {/* Answer input */}
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-slate-900 block">
+              Your answer:
             </label>
             <Textarea
               value={currentAnswer}
               onChange={(e) => handleAnswerChange(e.target.value)}
               placeholder="Write your answer here..."
-              className="min-h-24 text-lg rounded-2xl p-4 text-slate-900 placeholder:text-slate-500"
+              className="min-h-20 text-base rounded-xl border-primary/50 p-3 text-slate-900 placeholder:text-slate-400 focus:border-primary"
             />
-            <p className="text-xs text-slate-600 mt-2">
-              💬 Try to write a complete sentence!
-            </p>
           </div>
 
           {!currentScore && (
@@ -220,7 +222,7 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
             Question {currentQuestionIndex + 1} of {questions.length}
           </p>
           <div className="flex gap-2 mt-2 justify-center">
-            {questions.map((_question, idx: number) => (
+            {Array.from({ length: questions.length }, (_, idx) => (
               <div
                 key={idx}
                 className={`w-3 h-3 rounded-full transition-all ${

@@ -121,32 +121,36 @@ export default function SentenceComplete({ lessonId, onBack }: SentenceCompleteP
       <Card className="bg-gradient-to-br from-accent/10 to-accent/5 overflow-y-auto max-h-[70vh] shadow-lg">
        
 
-        <CardContent className="p-8 space-y-6">
-          <div className="bg-yellow-200 p-8 rounded-2xl">
-            <p className="text-sm text-slate-700 font-bold mb-4">COMPLETE THE SENTENCE:</p>
-            <p className="text-2xl font-bold text-slate-900 leading-relaxed mb-4">
+        <CardContent className="p-6 space-y-4">
+          {/* Exercise section */}
+          <div className="bg-accent/5 p-5 rounded-xl">
+            <p className="text-sm text-slate-700 font-bold mb-3">COMPLETE THE SENTENCE:</p>
+            <p className="text-xl font-bold text-slate-900 leading-relaxed mb-3">
               {currentExercise.partial.split('___').map((part: string, index: number) => (
                 <span key={index}>
                   {part}
                   {index < currentExercise.partial.split('___').length - 1 && (
-                    <span className="text-orange-600 font-bold text-3xl"> ___ </span>
+                    <span className="text-accent font-bold text-2xl"> ___ </span>
                   )}
                 </span>
               ))}
             </p>
-            <p className="text-sm text-slate-700 font-semibold">The missing word starts with: <span className="font-bold text-orange-700">{currentExercise.answer.charAt(0).toUpperCase()}</span></p>
+            <p className="text-sm text-slate-700 font-medium">
+              Starts with: <span className="font-bold text-accent">{currentExercise.answer.charAt(0).toUpperCase()}</span>
+            </p>
           </div>
 
-          <div>
-            <label className="text-sm font-bold text-slate-700 block mb-3">
-              MISSING WORD:
+          {/* Answer input */}
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-slate-900 block">
+              Missing word:
             </label>
             <Input
               type="text"
               value={currentAnswer}
               onChange={(e) => handleAnswerChange(e.target.value)}
               placeholder="Type the missing word..."
-              className="h-14 text-lg rounded-2xl p-4 text-slate-900 placeholder:text-slate-500"
+              className="h-12 text-base rounded-xl border-accent/50 text-slate-900 placeholder:text-slate-400 focus:border-accent"
             />
           </div>
 
