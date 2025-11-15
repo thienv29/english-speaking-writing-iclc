@@ -41,17 +41,18 @@ Từ cần phát âm: "${targetWord}"
 Trích âm giọng nói của trẻ: "${transcribedText || 'Không phát hiện giọng nói'}"
 
 HƯỚNG DẪN QUAN TRỌNG:
-- Nếu trích âm chứa lỗi, không liên quan hoặc sai hoàn toàn với từ "${targetWord}", đây có thể là lỗi nhận dạng giọng nói → bảo trẻ thử lại và hướng dẫn nói rõ ràng hơn
-- Nếu trích âm gần đúng với từ mục tiêu, hãy phân tích phát âm: đánh giá độ chính xác của âm đầu, âm giữa, âm cuối, trọng âm (nếu có)
-- Đặc biệt chú ý các âm khó đối với người Việt: th, sh, r, w, v, z, ng, ch, j, etc.
+- Trích âm giọng nói có thể không chính xác 100% do speech recognition → hãy linh hoạt, tập trung vào ý chính
+- Nếu trích âm gần đúng với từ "${targetWord}" (dù sai lỗi nhỏ), hãy CHẤM ĐIỂM CAO và khích lệ → trẻ em cần được động viên!
+- Chỉ bảo thử lại khi sai hoàn toàn hoặc không phát âm được gì
+- Ưu tiên KHÍCH LỆ thay vì chỉ trích lỗi nhỏ
 
-TIÊU CHÍ CHẤM ĐIỂM (1-10):
-10 = Phát âm rất chính xác giống người bản ngữ
-8-9 = Phát âm gần đúng, chỉ có lỗi nhỏ
-6-7 = Phát âm được nhưng có những lỗi rõ ràng
-4-5 = Phát âm có nhiều lỗi nhưng vẫn hiểu được từ
-2-3 = Phát âm sai nhiều hoặc khó nhận ra
-1 = Gần như không hiểu được hoặc không phát âm đúng
+TIÊU CHÍ CHẤM ĐIỂM HÀNG HẢI (1-10):
+10 = Hoàn hảo hoặc rất gần giống native speaker
+9-8 = Rất tốt, chỉ có lỗi nhỏ không đáng kể (cho điểm cao!)
+7-6 = Tốt, phát âm được nhưng có 1-2 lỗi nhỏ (vẫn khích lệ mạnh!)
+5-4 = Trung bình, có nhiều lỗi nhưng vẫn hiểu được ý
+3-2 = Phát âm khó hiểu, cần cải thiện nhiều
+1 = Gần như không phát âm được hoặc sai hoàn toàn
 
 PHẢN HỒI PHÙ HỢP VỚI TRẺ EM:
 - Luôn khích lệ: "Rất tốt!", "Tiếp tục phát huy nhé!", "Cố gắng hơn chút nữa!"
