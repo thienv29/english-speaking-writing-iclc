@@ -117,28 +117,16 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
   }
 
   return (
-    <div className="w-4xl mx-auto">
+    <div className="space-y-2 flex flex-col h-full justify-center w-4xl">
       <Button
         onClick={onBack}
         variant="outline"
-        className="mb-6 rounded-full h-10"
+        className="rounded-full h-10 w-fit"
       >
         ← Back
       </Button>
 
-      <div className="mb-6 text-center">
-        <p className="text-muted-foreground text-lg font-semibold">
-          Question {currentQuestionIndex + 1} of {questions.length}
-        </p>
-        <div className="w-full bg-muted rounded-full h-3 mt-2">
-          <div
-            className="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-300"
-            style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      <Card className="border-4 border-primary shadow-2xl">
+      <Card className="border-4 border-primary shadow-2xl bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh]">
 
         <CardContent className="p-8 space-y-6">
           <div className="bg-blue-100 p-8 rounded-2xl border-4 border-primary">
@@ -215,27 +203,41 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
               </p>
             </div>
           )}
-
-          <div className="flex gap-4 justify-center pt-4">
-            <Button
-              onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}
-              className="px-8 h-14 rounded-full font-bold text-lg"
-              variant="outline"
-            >
-              ← Previous
-            </Button>
-
-            <Button
-              onClick={handleNext}
-              disabled={!currentScore}
-              className="px-8 h-14 rounded-full font-bold text-lg bg-primary hover:bg-primary/90 disabled:opacity-50"
-            >
-              {isLastQuestion ? 'Finish! 🎉' : 'Next →'}
-            </Button>
-          </div>
         </CardContent>
       </Card>
+
+      {/* Navigation */}
+      <div className="flex gap-4 justify-between">
+        <Button
+          onClick={handlePrevious}
+          disabled={currentQuestionIndex === 0}
+          className="px-6 py-3 rounded-full font-bold disabled:opacity-50"
+        >
+          ← Previous
+        </Button>
+        <div className="text-center">
+          <p className="text-lg font-bold text-slate-700">
+            Question {currentQuestionIndex + 1} of {questions.length}
+          </p>
+          <div className="flex gap-2 mt-2 justify-center">
+            {questions.map((_question, idx: number) => (
+              <div
+                key={idx}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  idx === currentQuestionIndex ? 'bg-primary w-8' : 'bg-slate-300'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+        <Button
+          onClick={handleNext}
+          disabled={!currentScore}
+          className="px-6 py-3 rounded-full font-bold disabled:opacity-50"
+        >
+          {isLastQuestion ? 'Finish! 🎉' : 'Next →'}
+        </Button>
+      </div>
     </div>
   )
 }
