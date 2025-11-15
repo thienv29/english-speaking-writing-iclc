@@ -263,42 +263,56 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
 
   return (
     <div className="space-y-2 flex flex-col h-full justify-center w-4xl">
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh]">
-        <CardHeader className="text-center pb-2">
-          <div className="text-4xl mb-2">{currentWord.emoji}</div>
-          <CardTitle className="text-2xl text-primary mb-1">{currentWord.word}</CardTitle>
-          <p className="text-sm text-slate-700 font-semibold">{currentWord.example}</p>
-        </CardHeader>
+      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh] shadow-lg">
 
-        <CardContent className="space-y-4">
-          <div className="flex gap-4 justify-center">
+        <CardContent className="p-6 space-y-4">
+          {/* Header with emoji and word */}
+          <div className="text-center">
+            <div className="text-6xl mb-2">{currentWord.emoji}</div>
+            <h1 className="text-4xl font-bold text-slate-900">{currentWord.word}</h1>
+          </div>
+
+          {/* Example sentence */}
+          <div className="bg-primary/5 p-4 rounded-xl">
+            <p className="text-lg font-semibold text-slate-900 text-center">
+              "{currentWord.example}"
+            </p>
+          </div>
+
+          {/* Listen buttons */}
+          <div className="flex gap-3 justify-center">
             <Button
               onClick={() => playAudio(currentWord.word)}
-              className="bg-accent hover:bg-accent/80 text-accent-foreground px-8 py-6 text-lg rounded-full font-bold"
+              variant="outline"
+              size="lg"
+              className="rounded-xl font-semibold px-6"
             >
-              🔊 Say Word
+              🔊 Listen to Word
             </Button>
             <Button
               onClick={() => playAudio(currentWord.example)}
-              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-8 py-6 text-lg rounded-full font-bold"
+              variant="outline"
+              size="lg"
+              className="rounded-xl font-semibold px-6"
             >
-              🎤 Say Sentence
+              🎤 Listen to Sentence
             </Button>
           </div>
 
           {/* Recording Section */}
-          <div className="bg-white rounded-xl p-6">
-            <p className="text-center text-slate-900 font-bold mb-4">📢 Click to record your pronunciation:</p>
-            <div className="flex gap-4 justify-center mb-4">
+          <div className="bg-white rounded-xl p-5">
+            <p className="text-center text-slate-900 font-semibold mb-4">Record your pronunciation:</p>
+            <div className="flex justify-center mb-4">
               <Button
                 onClick={isRecording ? stopRecording : startRecording}
-                className={`px-8 py-6 text-lg rounded-full font-bold transition-all ${
+                size="lg"
+                className={`rounded-xl font-bold px-8 transition-all ${
                   isRecording
                     ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                    : 'bg-primary hover:bg-primary/80 text-primary-foreground'
+                    : 'bg-primary hover:bg-primary/90 text-white'
                 }`}
               >
-                {isRecording ? '⏹️ Recording... Stop' : '🎙️ Start Record'}
+                {isRecording ? '⏹️ Stop Recording' : '🎙️ Start Recording'}
               </Button>
             </div>
 
@@ -376,7 +390,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
             Word {currentWordIndex + 1} of {vocabulary.length}
           </p>
           <div className="flex gap-2 mt-2 justify-center">
-            {vocabulary.map((_, idx) => (
+            {Array.from({ length: vocabulary.length }, (_, idx) => (
               <div
                 key={idx}
                 className={`w-3 h-3 rounded-full transition-all ${
@@ -388,10 +402,9 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
         </div>
         <Button
           onClick={handleNext}
-          disabled={currentWordIndex === vocabulary.length - 1}
-          className="px-6 py-3 rounded-full font-bold disabled:opacity-50"
+          className="px-6 py-3 rounded-full font-bold"
         >
-          Next →
+          {currentWordIndex === vocabulary.length - 1 ? 'Finish! 🎉' : 'Next →'}
         </Button>
       </div>
     </div>
