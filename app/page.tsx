@@ -19,18 +19,18 @@ export default function Home() {
 
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 p-4 md:p-8">
+    <main className="h-screen bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 overflow-hidden flex flex-col p-2 md:p-4">
       {currentScreen === 'home' && (
         <LessonSelector onSelectLesson={handleSelectLesson} />
       )}
 
       {currentScreen === 'lesson' && selectedLesson && (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto flex flex-col h-full">
           {/* Tab Navigation */}
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-4 mb-2">
             <button
               onClick={() => setActiveTab('speaking')}
-              className={`flex-1 py-4 px-6 rounded-2xl font-bold text-lg transition-all ${
+              className={`flex-1 py-2 px-4 rounded-xl font-bold text-base transition-all ${
                 activeTab === 'speaking'
                   ? 'bg-primary text-primary-foreground shadow-lg scale-105'
                   : 'bg-white text-primary border-2 border-primary hover:bg-blue-50'
@@ -40,7 +40,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => setActiveTab('writing')}
-              className={`flex-1 py-4 px-6 rounded-2xl font-bold text-lg transition-all ${
+              className={`flex-1 py-2 px-4 rounded-xl font-bold text-base transition-all ${
                 activeTab === 'writing'
                   ? 'bg-secondary text-secondary-foreground shadow-lg scale-105'
                   : 'bg-white text-secondary border-2 border-secondary hover:bg-green-50'

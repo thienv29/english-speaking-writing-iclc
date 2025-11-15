@@ -6,50 +6,69 @@ export async function POST(request: Request) {
   try {
     const { type, userAnswer, question, targetWord, partial, transcribedText } = await request.json();
 
-    // Handle speaking type - improved comparison logic with phonetic similarity
+    // Handle speaking type - use AI to assess pronunciation accuracy
     if (type === 'speaking') {
-      const normalizedTranscribed = normalizeText(transcribedText || '');
-      const normalizedTarget = (targetWord || '').toLowerCase().trim();
-
-      let score = 1;
-      let feedback = "Thử lại đi! Bé làm được mà!";
-      let tips = "Nói từ rõ ràng và chậm chậm nhé.";
-
-      // Perfect match
-      if (normalizedTranscribed === normalizedTarget) {
-        score = 10;
-        feedback = "Giọng phát âm hoàn hảo! Giỏi lắm!";
-        tips = "Làm tốt lắm!";
+      // Handle error cases first
+      if (transcribedText && transcribedText.toLowerCase().includes('could not connect')) {
+        return Response.json({
+          score: 1,
+          feedback: "Có lỗi kết nối. Hãy thử lại!",
+          tips: "Kiểm tra internet và thử lại nhé.",
+          transcribedText
+        });
       }
-      // Close phonetic match (Levenshtein ≤1) or contains the word
-      else if (levenshteinDistance(normalizedTranscribed, normalizedTarget) <= 1 ||
-               normalizedTranscribed.includes(normalizedTarget)) {
-        score = 9;
-        feedback = "Gần như đúng rồi! Sắp hoàn hảo!";
-        tips = "Bé đang đi đúng hướng!";
+      else if (transcribedText && (transcribedText.toLowerCase().includes('error') || transcribedText.toLowerCase().includes('failed'))) {
+        return Response.json({
+          score: 1,
+          feedback: "Có lỗi xảy ra. Hãy thử lại!",
+          tips: "Ghi âm lại và gửi nhé.",
+          transcribedText
+        });
       }
-      // Phonetic similarity (distance 2 or sound-like)
-      else if (levenshteinDistance(normalizedTranscribed, normalizedTarget) <= 2 ||
-               hasPhoneticSimilarity(normalizedTranscribed, normalizedTarget)) {
-        score = 7;
-        feedback = "Cố gắng tốt! Tiếp tục luyện tập!";
-        tips = "Chú ý nghe đúng âm thanh.";
-      }
-      // Some letters/digits match
-      else if (normalizedTranscribed.length > 0 &&
-               hasLetterMatches(normalizedTranscribed, normalizedTarget)) {
-        score = 5;
-        feedback = "Thử tốt đấy! Bé đang tiến bộ rồi.";
-        tips = "Lắng nghe cẩn thận từng âm trong từ.";
-      }
-      // Valid audio but wrong word
-      else if (normalizedTranscribed.length > 0) {
-        score = 3;
-        feedback = "Tiếp tục cố gắng! Bé có thể làm tốt hơn.";
-        tips = `Bé nói "${normalizedTranscribed}". Hãy thử nói "${normalizedTarget}".`;
+      else if (transcribedText && transcribedText.toLowerCase().includes('could not detect')) {
+        return Response.json({
+          score: 5,
+          feedback: "Thử tốt đấy! Bé đang tiến bộ rồi.",
+          tips: "Lắng nghe cẩn thận từng âm trong từ.",
+          transcribedText
+        });
       }
 
-      return Response.json({ score, feedback, tips, transcribedText });
+      // Use AI to assess pronunciation accuracy
+      const prompt = `You are an English pronunciation teacher evaluating a child's speech recording. Be gentle and encouraging.
+
+Target word to pronounce: "${targetWord}"
+Child's transcribed speech: "${transcribedText || 'No speech detected'}"
+
+CRITICAL: If the transcribed speech contains no speech, errors, or is completely unrelated to the target word (${targetWord}), the transcript is likely WRONG due to poor audio quality or recognition errors. In this case, tell the child to try again.
+
+If the transcript seems related to the target word but shows pronunciation errors, give specific gentle feedback.
+
+Respond in Vietnamese ONLY (the child speaks Vietnamese).
+Rate pronunciation accuracy from 1-10 (1=needs practice, 10=perfect).
+Provide brief, child-friendly feedback.
+
+IMPORTANT: If transcript is wrong or irrelevant, say something like "Bé cần thử lại" (You need to try again) and encourage them to speak more clearly.
+
+Format: {"score": number, "feedback": "string", "tips": "string"}`;
+
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text().trim();
+
+      // Extract JSON from response
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      const jsonText = jsonMatch ? jsonMatch[0] : text;
+
+      const parsedResult = JSON.parse(jsonText);
+
+      return Response.json({
+        score: parsedResult.score || 1,
+        feedback: parsedResult.feedback || "Thử lại đi!",
+        tips: parsedResult.tips || "Nói rõ ràng hơn nhé.",
+        transcribedText
+      });
     }
 
     // Use Gemini for other types (writing, qa, sentence, complete)

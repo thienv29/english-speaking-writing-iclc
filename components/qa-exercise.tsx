@@ -139,9 +139,6 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
       </div>
 
       <Card className="border-4 border-primary shadow-2xl">
-        <CardHeader className="bg-gradient-to-r from-primary to-secondary text-white text-center pb-8">
-          <CardTitle className="text-3xl">💬 Q&A Exercise</CardTitle>
-        </CardHeader>
 
         <CardContent className="p-8 space-y-6">
           <div className="bg-blue-100 p-8 rounded-2xl border-4 border-primary">

@@ -133,10 +133,6 @@ export default function SentenceMaker({ lessonId, onBack }: SentenceMakerProps) 
       </div>
 
       <Card className="border-4 border-secondary shadow-2xl">
-        <CardHeader className="bg-gradient-to-r from-secondary to-green-500 text-white text-center pb-8">
-          <CardTitle className="text-3xl">✍️ Make a Sentence</CardTitle>
-        </CardHeader>
-
         <CardContent className="p-8 space-y-6">
           <div className="text-center">
             <div className="text-8xl mb-4">{currentWord.emoji}</div>

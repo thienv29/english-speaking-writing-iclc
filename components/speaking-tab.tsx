@@ -111,26 +111,35 @@ const vocabularyData: Record<string, any[]> = {
         body: formData,
       })
 
-      const result = await response.json()
+      if (response.ok) {
+        const result = await response.json()
+        console.log('[v0] Transcription API result:', result)
 
-      console.log('[v0] Transcription API result:', result)
-
-      if (result.success) {
-        // Success case - return transcription text if available, otherwise return empty or message
-        if (result.transcription && result.transcription.trim()) {
-          return result.transcription.trim()
+        // Handle the API response format: {"transcription":"Dog.","language":"en","language_probability":"1.00"}
+        if (result.transcription) {
+          // Return the transcription text if available
+          if (result.transcription.trim()) {
+            return result.transcription.trim()
+          } else {
+            return 'Could not detect any speech in the recording. Please try speaking louder or closer to the microphone.'
+          }
         } else {
-          // Success but no transcription - might be silent audio
-          return '[No speech detected in audio]'
+          return 'Transcription failed. Please try again.'
         }
+      } else if (response.status === 422) {
+        // No speech detected
+        return 'Could not detect any speech in the recording. Please try speaking louder or closer to the microphone.'
+      } else if (response.status === 400) {
+        // Bad file format
+        return 'The audio file format is not supported. Please try recording again.'
       } else {
-        // API returned error (success: false) or unexpected format
-        const errorMsg = result.message || 'Transcription failed'
-        return `[Error: ${errorMsg}]`
+        // Other errors
+        console.error('[v0] Transcription API error status:', response.status)
+        return 'There was an error processing your audio. Please try again later.'
       }
     } catch (error) {
       console.error('[v0] Transcription API error:', error)
-      return '[Could not transcribe: API unavailable]'
+      return 'Could not connect to the speech recognition service. Please check your internet connection and try again.'
     }
   }
 
@@ -253,12 +262,12 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary">
-        <CardHeader className="text-center pb-4">
-          <div className="text-8xl mb-4">{currentWord.emoji}</div>
-          <CardTitle className="text-5xl text-primary mb-2">{currentWord.word}</CardTitle>
-          <p className="text-lg text-slate-700 font-semibold">{currentWord.example}</p>
+    <div className="space-y-2 flex flex-col h-full justify-center">
+      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary overflow-y-auto max-h-[70vh]">
+        <CardHeader className="text-center pb-2">
+          <div className="text-4xl mb-2">{currentWord.emoji}</div>
+          <CardTitle className="text-2xl text-primary mb-1">{currentWord.word}</CardTitle>
+          <p className="text-sm text-slate-700 font-semibold">{currentWord.example}</p>
         </CardHeader>
 
         <CardContent className="space-y-4">

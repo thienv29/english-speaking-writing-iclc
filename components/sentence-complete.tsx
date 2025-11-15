@@ -131,9 +131,7 @@ export default function SentenceComplete({ lessonId, onBack }: SentenceCompleteP
       </div>
 
       <Card className="border-4 border-accent shadow-2xl">
-        <CardHeader className="bg-gradient-to-r from-accent to-orange-500 text-white text-center pb-8">
-          <CardTitle className="text-3xl">🎯 Complete the Sentence</CardTitle>
-        </CardHeader>
+       
 
         <CardContent className="p-8 space-y-6">
           <div className="bg-yellow-200 p-8 rounded-2xl border-4 border-accent">
