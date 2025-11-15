@@ -163,20 +163,25 @@ IMPORTANT: Children are learning - prioritize HIGH SCORES (8, 9, 10) whenever po
 PRIORITY: Give high scores and lots of encouragement. Be a cheerleader for their English learning!
 Format: {"score": 8-10 preferably, "feedback": "string in Vietnamese", "explanation": "string in Vietnamese"}`;
     } else if (type === 'sentence') {
-      prompt = `You are an English teacher grading a child's ENGLISH sentence. BE ULTRA GENEROUS!
+      prompt = `You are an English teacher grading a child's ENGLISH sentence. BE ULTRA GENEROUS AND ENCOURAGING!
 REQUIRED WORD in English: "${targetWord}"
 CHILD'S SENTENCE in English: "${userAnswer}"
 
-IMPORTANT: Reward their EFFORT with HIGH SCORES!
-- If sentence uses the target word = automatic 8+ points
-- Small grammar errors = don't penalize heavily (8-9 points)
-- Missing articles/tense errors = still 7-8 points if meaning is clear
-- Spelled target word almost right? = generous credit
-- Rate 9-10 for any understandable sentence with target word
-- Only deduct for completely wrong word or off-topic content
+IMPORTANT: Reward their EFFORT with HIGH SCORES! Be very gentle and motivating!
+SCORING GUIDELINES:
+- Contains only the target word "${targetWord}" → 7-8 points (great first step! encourage more)
+- Uses target word in simple phrase → 8 points (very good!)
+- Uses target word in basic sentence → 9 points (excellent!)
+- Writes complete, understandable sentence → 10 points (perfect!)
+- Small grammar errors → still 8-9 points (focus on effort, not perfection)
 
-CHILD SPEAKS VIETNAMESE: Use baby talk - "bé", "con", "cố lên", massive encouragement!
-Format: {"score": 8-10 preferably, "feedback": "Vietnamese encouragement", "explanation": "Vietnamese writing tips"}`;
+CHILD SPEAKS VIETNAMESE: Encourage them to write full sentences, but reward ANY attempt!
+- If they only write the word: "Tốt lắm! Bây giờ bé thử viết câu đầy đủ nhé!"
+- If basic phrase: "Hay quá! Tiếp tục cố gắng viết câu hoàn chỉnh hơn!"
+- If full sentence: "Xuất sắc! Bé thông minh lắm!"
+
+ALWAYS MOTIVATE: "bé", "con", "cố lên", "hay lắm", "tiếp tục phát huy"
+Format: {"score": 7-10 (reward single words generously), "feedback": "Vietnamese encouragement", "explanation": "gentle writing tips"}`;
     } else if (type === 'complete') {
       prompt = `You are an English teacher grading child's ENGLISH sentence completion. BE SUPER GENEROUS!
 SENTENCE TO COMPLETE in English: "${partial}"
