@@ -27,30 +27,45 @@ export async function POST(request: Request) {
       }
       else if (transcribedText && transcribedText.toLowerCase().includes('could not detect')) {
         return Response.json({
-          score: 5,
-          feedback: "Thử tốt đấy! Bé đang tiến bộ rồi.",
-          tips: "Lắng nghe cẩn thận từng âm trong từ.",
+          score: 2,
+          feedback: "Không nghe rõ giọng bé nói.",
+          tips: "Hãy nói to hơn và gần micro hơn nhé!",
           transcribedText
         });
       }
 
       // Use AI to assess pronunciation accuracy
-      const prompt = `You are an English pronunciation teacher evaluating a child's speech recording. Be gentle and encouraging.
+      const prompt = `Bạn là giáo viên phát âm tiếng Anh đang đánh giá bài ghi âm của trẻ em. Hãy nhẹ nhàng và khích lệ.
 
-Target word to pronounce: "${targetWord}"
-Child's transcribed speech: "${transcribedText || 'No speech detected'}"
+Từ cần phát âm: "${targetWord}"
+Trích âm giọng nói của trẻ: "${transcribedText || 'Không phát hiện giọng nói'}"
 
-CRITICAL: If the transcribed speech contains no speech, errors, or is completely unrelated to the target word (${targetWord}), the transcript is likely WRONG due to poor audio quality or recognition errors. In this case, tell the child to try again.
+HƯỚNG DẪN QUAN TRỌNG:
+- Nếu trích âm chứa lỗi, không liên quan hoặc sai hoàn toàn với từ "${targetWord}", đây có thể là lỗi nhận dạng giọng nói → bảo trẻ thử lại và hướng dẫn nói rõ ràng hơn
+- Nếu trích âm gần đúng với từ mục tiêu, hãy phân tích phát âm: đánh giá độ chính xác của âm đầu, âm giữa, âm cuối, trọng âm (nếu có)
+- Đặc biệt chú ý các âm khó đối với người Việt: th, sh, r, w, v, z, ng, ch, j, etc.
 
-If the transcript seems related to the target word but shows pronunciation errors, give specific gentle feedback.
+TIÊU CHÍ CHẤM ĐIỂM (1-10):
+10 = Phát âm rất chính xác giống người bản ngữ
+8-9 = Phát âm gần đúng, chỉ có lỗi nhỏ
+6-7 = Phát âm được nhưng có những lỗi rõ ràng
+4-5 = Phát âm có nhiều lỗi nhưng vẫn hiểu được từ
+2-3 = Phát âm sai nhiều hoặc khó nhận ra
+1 = Gần như không hiểu được hoặc không phát âm đúng
 
-Respond in Vietnamese ONLY (the child speaks Vietnamese).
-Rate pronunciation accuracy from 1-10 (1=needs practice, 10=perfect).
-Provide brief, child-friendly feedback.
+PHẢN HỒI PHÙ HỢP VỚI TRẺ EM:
+- Luôn khích lệ: "Rất tốt!", "Tiếp tục phát huy nhé!", "Cố gắng hơn chút nữa!"
+- Chỉ ra lỗi cụ thể nhẹ nhàng: "Thử phát âm âm 'th' rõ hơn nhé"
+- Đưa ra gợi ý cụ thể: "Hãy để lưỡi chạm răng trên", "Thổi hơi nhẹ khi phát âm"
 
-IMPORTANT: If transcript is wrong or irrelevant, say something like "Bé cần thử lại" (You need to try again) and encourage them to speak more clearly.
+VÍ DỤ PHÁT ÂM CẦN CHÚ Ý:
+- "think" → cần âm TH không giống S
+- "ship" → cần âm SH không giống S  
+- "run" → cần âm R lưỡi cuộn lại
+- "water" → cần âm W không giống V
 
-Format: {"score": number, "feedback": "string", "tips": "string"}`;
+LUÔN trả lời bằng TIẾNG VIỆT và format JSON chính xác:
+{"score": số từ 1-10, "feedback": "phản hồi ngắn gọn khích lệ", "tips": "lời khuyên phát âm cụ thể"}`;
 
       const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       const result = await model.generateContent(prompt);
