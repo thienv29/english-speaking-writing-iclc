@@ -118,7 +118,7 @@ export default function SentenceComplete({ lessonId, onBack }: SentenceCompleteP
         ← Back
       </Button>
 
-      <Card className="bg-gradient-to-br from-accent/10 to-accent/5 overflow-y-auto max-h-[70vh] shadow-lg">
+      <Card className="bg-gradient-to-br from-accent/10 to-accent/5 overflow-y-auto  shadow-lg">
        
 
         <CardContent className="p-6 space-y-4">

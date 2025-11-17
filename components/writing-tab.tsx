@@ -320,7 +320,7 @@ export default function WritingTab({ lessonId }: WritingTabProps) {
 
   return (
     <div className="space-y-4 flex flex-col h-full justify-center w-4xl">
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh] shadow-lg">
+      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto  shadow-lg">
         <CardContent className="px-8">
           {renderExerciseContent()}
 

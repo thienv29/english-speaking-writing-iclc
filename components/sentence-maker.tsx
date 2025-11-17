@@ -120,7 +120,7 @@ export default function SentenceMaker({ lessonId, onBack }: SentenceMakerProps) 
         ← Back
       </Button>
 
-      <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 overflow-y-auto max-h-[70vh] shadow-lg">
+      <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 overflow-y-auto  shadow-lg">
         <CardContent className="p-6 space-y-4">
           {/* Header with emoji and word */}
           <div className="text-center">

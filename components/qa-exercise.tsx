@@ -126,7 +126,7 @@ export default function QAExercise({ lessonId, onBack }: QAExerciseProps) {
         ← Back
       </Button>
 
-      <Card className="shadow-lg bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto max-h-[70vh]">
+      <Card className="shadow-lg bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto ">
 
         <CardContent className="p-6 space-y-4">
           {/* Question section */}
