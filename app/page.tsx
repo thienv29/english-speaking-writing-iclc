@@ -19,7 +19,7 @@ export default function Home() {
 
 
   return (
-    <main className="h-screen bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 overflow-hidden flex flex-col p-2 md:p-4">
+    <main className="h-screen bg-white overflow-hidden flex flex-col p-2 md:p-4">
       {currentScreen === 'home' && (
         <LessonSelector onSelectLesson={handleSelectLesson} />
       )}
