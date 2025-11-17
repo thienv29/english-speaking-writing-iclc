@@ -8,17 +8,27 @@ export async function POST(request: Request) {
 
     // Handle speaking type - use AI to assess pronunciation accuracy
     if (type === 'speaking') {
-      // PERFECT MATCH: If transcript is exactly the target word or very close, give 10/10 immediately
+      // PERFECT MATCH: Only if transcript matches the target word exactly (or contains it naturally)
       const normalizedTranscript = normalizeText(transcribedText || '');
       const normalizedTarget = normalizeText(targetWord);
 
-      if (normalizedTranscript === normalizedTarget ||
-          normalizedTranscript.includes(normalizedTarget) ||
-          levenshteinDistance(normalizedTranscript, normalizedTarget) <= 1) {
+      if (normalizedTranscript === normalizedTarget) {
+        // Only perfect exact matches get 10/10 immediately
         return Response.json({
           score: 10,
           feedback: `Tuyệt vời! Bé phát âm từ '${targetWord}' rất chính xác! 🎉`,
           tips: "Bé làm rất tốt! Tiếp tục phát huy nhé!",
+          transcribedText
+        });
+      }
+
+      if (normalizedTranscript.includes(normalizedTarget) &&
+          levenshteinDistance(normalizedTranscript, normalizedTarget) <= 2) {
+        // Allow slight variations if target word is clearly spoken
+        return Response.json({
+          score: 9,
+          feedback: `Rất tốt! Bé phát âm '${targetWord}' gần đúng lắm! 🎉`,
+          tips: "Cố gắng phát âm rõ ràng hơn chút nữa nhé!",
           transcribedText
         });
       }
@@ -58,10 +68,11 @@ Trích âm giọng nói của trẻ: "${transcribedText || 'Không phát hiện 
 Số lần thử: ${attempts || 1}
 
 HƯỚNG DẪN QUAN TRỌNG:
-- Trích âm giọng nói có thể không chính xác 100% do speech recognition → hãy linh hoạt, tập trung vào ý chính
-- Nếu trích âm CHỨA "${targetWord}" oder rất gần giống (ví dụ "but" thay vì "bird") → TỰ ĐỘNG CHO ĐIỂM CAO 9-10!
-- Phát âm gần đúng = cũng cho điểm cao, trẻ em cần được khích lệ!
-- Chỉ thấp điểm khi sai hoàn toàn hoặc không liên quan gì đến từ cần phát âm
+- Trích âm giọng nói có thể không chính xác 100% do speech recognition → hãy phân tích cẩn thận
+- Chỉ cho điểm cao (8-10) nếu trích âm RỖ RÀNG LÀ từ mục tiêu hoặc rất gần giống (ví dụ "but" thay vì "bird", "pop" thay vì "pop")
+- Nếu trích âm chứa từ đúng nhưng có từ khác xen vào (như "dog something", "dog ghi") → CHO ĐIỂM THẤP (3-6) vì phát âm không chính xác
+- Chỉ thấp điểm khi phát âm sai hoàn toàn hoặc không có liên quan gì đến từ cần phát âm
+- Ưu tiên độ chính xác phát âm, nhưng vẫn khích lệ trẻ em học tập
 
 ${isLenientMode ? `CHẾ ĐỘ NỚI LỎNG SIÊU HÀNG: Trẻ đã thử ${attempts} lần! Tuyệt đối KHÔNG được thấp điểm nếu phát âm gần đúng. Thưởng cho mọi nỗ lực!` : ''}
 
