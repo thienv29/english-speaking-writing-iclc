@@ -8,32 +8,43 @@ interface SpeakingTabProps {
   lessonId: string
 }
 
-const vocabularyData: Record<string, any[]> = {
-  animals: [
-    { word: 'Dog', example: 'The dog is running', emoji: '🐶', id: 'dog' },
-    { word: 'Cat', example: 'The cat is sleeping', emoji: '🐱', id: 'cat' },
-    { word: 'Bird', example: 'The bird is flying', emoji: '🐦', id: 'bird' },
-    { word: 'Fish', example: 'The fish is swimming', emoji: '🐠', id: 'fish' },
-  ],
-  food: [
-    { word: 'Apple', example: 'I like red apples', emoji: '🍎', id: 'apple' },
-    { word: 'Pizza', example: 'We eat pizza on Friday', emoji: '🍕', id: 'pizza' },
-    { word: 'Banana', example: 'Bananas are yellow', emoji: '🍌', id: 'banana' },
-    { word: 'Juice', example: 'Drink fresh juice', emoji: '🧃', id: 'juice' },
-  ],
-  daily: [
-    { word: 'Run', example: 'I run in the morning', emoji: '🏃', id: 'run' },
-    { word: 'Sleep', example: 'I sleep at night', emoji: '😴', id: 'sleep' },
-    { word: 'Eat', example: 'We eat breakfast', emoji: '🍽️', id: 'eat' },
-    { word: 'Play', example: 'Children play games', emoji: '🎮', id: 'play' },
-  ],
-  family: [
-    { word: 'Mother', example: 'My mother is kind', emoji: '👩', id: 'mother' },
-    { word: 'Father', example: 'My father is strong', emoji: '👨', id: 'father' },
-    { word: 'Sister', example: 'My sister is smart', emoji: '👧', id: 'sister' },
-    { word: 'Brother', example: 'My brother likes sports', emoji: '👦', id: 'brother' },
-  ],
+type SpeakingMode = 'words' | 'sentences'
+
+interface SpeakingItem {
+  text: string
+  word?: string // For backward compatibility
+  example?: string
+  emoji: string
+  id: string
 }
+
+const speakingData: Record<string, { words: SpeakingItem[], sentences: SpeakingItem[] }> = {
+  animals: {
+    words: [
+      { text: 'Dog', word: 'Dog', example: 'The dog is running', emoji: '🐶', id: 'dog' },
+      { text: 'Cat', word: 'Cat', example: 'The cat is sleeping', emoji: '🐱', id: 'cat' },
+      { text: 'Bird', word: 'Bird', example: 'The bird is flying', emoji: '🐦', id: 'bird' },
+      { text: 'Fish', word: 'Fish', example: 'The fish is swimming', emoji: '🐠', id: 'fish' },
+    ],
+    sentences: [
+      { text: 'The dog is running fast in the park', example: 'The dog is running', emoji: '🐶', id: 'dog-sentence' },
+      { text: 'The cat is sleeping on the chair', example: 'The cat is sleeping', emoji: '🐱', id: 'cat-sentence' },
+      { text: 'The bird is flying high in the sky', example: 'The bird is flying', emoji: '🐦', id: 'bird-sentence' },
+      { text: 'The fish is swimming in the water', example: 'The fish is swimming', emoji: '🐠', id: 'fish-sentence' },
+    ]
+  },
+}
+
+// Backward compatibility for vocabulary data
+const vocabularyData: Record<string, any[]> = Object.keys(speakingData).reduce((acc, lesson) => {
+  acc[lesson] = speakingData[lesson].words.map(item => ({
+    word: item.word || item.text,
+    example: item.example,
+    emoji: item.emoji,
+    id: item.id
+  }))
+  return acc
+}, {} as Record<string, any[]>)
 
   // Helper function to convert WebM blob to WAV
   const convertToWav = async (webmBlob: Blob): Promise<Blob> => {
@@ -156,19 +167,21 @@ const vocabularyData: Record<string, any[]> = {
 
 export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [speakingMode, setSpeakingMode] = useState<SpeakingMode>('words')
   const [isRecording, setIsRecording] = useState(false)
   const [recordingUrl, setRecordingUrl] = useState<string | null>(null)
   const [recordingSaved, setRecordingSaved] = useState(false)
   const [scoring, setScoring] = useState(false)
   const [score, setScore] = useState<any>(null)
   const [transcribedText, setTranscribedText] = useState<string>('')
-  const [attempts, setAttempts] = useState<Record<number, number>>({}) // Track attempts per word
+  const [attempts, setAttempts] = useState<Record<string, Record<number, number>>>({}) // Track attempts per mode and item
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const speechRecognitionRef = useRef<any>(null)
 
-  const vocabulary = vocabularyData[lessonId] || vocabularyData.animals
-  const currentItem = vocabulary[currentIndex]
+  const lessonData = speakingData[lessonId] || speakingData.animals
+  const currentData = speakingMode === 'words' ? lessonData.words : lessonData.sentences
+  const currentItem = currentData[currentIndex]
 
   const startRecording = async () => {
     try {
@@ -205,13 +218,19 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
             const transcript = await transcribeAudio(wavBlob)
             setTranscribedText(transcript)
 
-            // Increment attempts for this word
+            // Increment attempts for this item
+            const modeKey = speakingMode
             setAttempts(prev => ({
               ...prev,
-              [currentIndex]: (prev[currentIndex] || 0) + 1
+              [modeKey]: {
+                ...prev[modeKey],
+                [currentIndex]: (prev[modeKey]?.[currentIndex] || 0) + 1
+              }
             }))
 
-            await scoreRecording(currentItem.word, transcript, attempts[currentIndex] || 0)
+            const targetText = speakingMode === 'words' ? (currentItem.word || currentItem.text) : currentItem.text
+            const currentAttempts = attempts[modeKey]?.[currentIndex] || 0
+            await scoreRecording(targetText, transcript, currentAttempts)
         } catch (audioError) {
           console.error('[v0] Audio processing error:', audioError)
           setTranscribedText('Unable to process the recorded audio. This may be due to browser compatibility or recording issues. Please try again.')
@@ -269,7 +288,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
   }
 
   const handleNext = () => {
-    if (currentIndex < vocabulary.length - 1) {
+    if (currentIndex < currentData.length - 1) {
       setCurrentIndex(currentIndex + 1)
       setRecordingUrl(null)
       setRecordingSaved(false)
@@ -294,9 +313,42 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
     window.speechSynthesis.speak(utterance)
   }
 
+  const handleModeChange = (mode: SpeakingMode) => {
+    setSpeakingMode(mode)
+    setCurrentIndex(0) // Reset to first item when switching modes
+    setRecordingUrl(null)
+    setRecordingSaved(false)
+    setScore(null)
+    setTranscribedText('')
+  }
+
   return (
     <div className="space-y-4 flex flex-col h-full justify-center w-4xl">
       <Card className="bg-gradient-to-br from-primary/10 to-primary/5 overflow-y-auto  shadow-lg">
+
+        {/* Mode Switcher */}
+        <CardHeader className="pb-4">
+          <div className="flex justify-center">
+            <div className="flex bg-slate-100 rounded-full p-1 border">
+              <Button
+                onClick={() => handleModeChange('words')}
+                variant={speakingMode === 'words' ? 'default' : 'ghost'}
+                size="sm"
+                className={`rounded-full px-6 ${speakingMode === 'words' ? 'shadow-sm' : ''}`}
+              >
+                📝 Words
+              </Button>
+              <Button
+                onClick={() => handleModeChange('sentences')}
+                variant={speakingMode === 'sentences' ? 'default' : 'ghost'}
+                size="sm"
+                className={`rounded-full px-6 ${speakingMode === 'sentences' ? 'shadow-sm' : ''}`}
+              >
+                💬 Sentences
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
 
         <CardContent className="px-8">
           {/* Practice Header */}
@@ -310,32 +362,44 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
                 </div>
                 <div className="space-y-1">
                   <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
-                    {currentItem.word}
+                    {currentItem.text}
                   </h1>
                   <div className="h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"></div>
                 </div>
                 <Button
-                  onClick={() => playAudio(currentItem.word)}
+                  onClick={() => playAudio(currentItem.text)}
                   variant="outline"
                   size="lg"
                   className="mt-4 px-6 py-3 rounded-full font-semibold border-2 border-blue-300 text-blue-700 bg-white hover:bg-blue-500 hover:border-blue-500 hover:text-white shadow-sm hover:shadow-md transition-all duration-200"
                 >
-                  🔊 Listen to Word
+                  🔊 Listen to {speakingMode === 'words' ? 'Word' : 'Sentence'}
                 </Button>
               </div>
 
               {/* RIGHT: Clear Instructions */}
               <div className="text-center">
                 <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-white/50">
-                  <h3 className="text-2xl font-bold text-slate-800 mb-3">Practice Speaking Words</h3>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-3">
+                    Practice Speaking {speakingMode === 'words' ? 'Words' : 'Sentences'}
+                  </h3>
                   <p className="text-lg text-slate-700 leading-relaxed mb-4">
-                    Say just the word clearly:
+                    {speakingMode === 'words'
+                      ? 'Say just the word clearly:'
+                      : 'Read the sentence aloud:'
+                    }
                   </p>
                   <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-4">
-                    <p className="text-3xl font-bold text-blue-700">{currentItem.word}</p>
+                    <p className={`font-bold text-blue-700 ${
+                      speakingMode === 'words' ? 'text-3xl' : 'text-xl'
+                    }`}>
+                      "{currentItem.text}"
+                    </p>
                   </div>
                   <p className="text-slate-600">
-                    Record yourself saying this single word
+                    {speakingMode === 'words'
+                      ? 'Record yourself saying this single word'
+                      : 'Record yourself reading this complete sentence'
+                    }
                   </p>
                 </div>
               </div>
@@ -448,10 +512,10 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
         </Button>
         <div className="text-center">
           <p className="text-lg font-bold text-slate-700">
-            Word {currentIndex + 1} of {vocabulary.length}
+            {speakingMode === 'words' ? 'Word' : 'Sentence'} {currentIndex + 1} of {currentData.length}
           </p>
           <div className="flex gap-2 mt-2 justify-center">
-            {Array.from({ length: vocabulary.length }, (_, idx) => (
+            {Array.from({ length: currentData.length }, (_, idx) => (
               <div
                 key={idx}
                 className={`w-3 h-3 rounded-full transition-all ${
@@ -465,7 +529,7 @@ export default function SpeakingTab({ lessonId }: SpeakingTabProps) {
           onClick={handleNext}
           className="px-6 py-3 rounded-full font-bold"
         >
-          {currentIndex === vocabulary.length - 1 ? 'Finish! 🎉' : 'Next →'}
+          {currentIndex === currentData.length - 1 ? 'Finish! 🎉' : 'Next →'}
         </Button>
       </div>
     </div>
